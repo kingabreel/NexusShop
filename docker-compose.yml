@@ -11,6 +11,8 @@ services:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - nexusshop-network
 
   app:
     build: .
@@ -32,6 +34,12 @@ services:
       JWT_SECRET: ${JWT_SECRET:-default_secret_key}
 
     restart: always
+    networks:
+      - nexusshop-network
 
 volumes:
   postgres_data:
+
+networks:
+  nexusshop-network:
+    driver: bridge
