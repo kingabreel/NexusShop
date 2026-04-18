@@ -52,16 +52,7 @@ Crie o banco de dados:
 CREATE DATABASE nexusshop;
 ```
 
-Configure no arquivo application.properties ou application.yml:
-
-```properties id="prop001"
-spring.datasource.url=jdbc:postgresql://localhost:5432/nexusshop
-spring.datasource.username=seu_usuario
-spring.datasource.password=sua_senha
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-```
+Configure no arquivo .env copiando o conteudo do env.example
 
 ---
 
@@ -83,7 +74,7 @@ spring.security.oauth2.client.registration.google.client-secret=SEU_CLIENT_SECRE
 ## Clonar repositório
 
 ```bash id="cmd001"
-git clone https://github.com/seu-usuario/nexusshop.git
+git clone https://github.com/kingabreel/nexusshop.git
 cd nexusshop
 ```
 
