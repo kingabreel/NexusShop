@@ -52,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/product/**", "/api/stock/**").hasRole("ADMIN")
                         .requestMatchers("/api/order/**", "/api/cart/**").hasRole("CLIENT")
+                        .requestMatchers("/products/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()))
