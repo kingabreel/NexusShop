@@ -1,14 +1,16 @@
 package com.nexus.shop.api.product.controller;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import com.nexus.shop.api.product.service.ProductService;
+import com.nexus.shop.model.ApiResponse;
 import com.nexus.shop.model.product.dto.ProductCreateDTO;
 import com.nexus.shop.model.product.dto.ProductResponseDTO;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import jakarta.validation.Valid;
-
 
 @RestController
 @RequestMapping("/products")
@@ -21,8 +23,28 @@ public class ProductController {
     }
 
     @PostMapping
-    public ProductResponseDTO create(@RequestBody @Valid ProductCreateDTO dto) {
-        return service.create(dto);
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> create(@RequestBody @Valid ProductCreateDTO dto) {
+        // Esse formato é ideal pra lidar com erros de validação e exceções.
+        // Assim já retorna o status correto e uma mensagem de erro amigável :)
+
+        // O que fiz foi criar uma classe ApiResponse genérica pra padronizar as respostas da API, tanto de sucesso quanto de erro.
+        // Agora a gente retorna sempre essa classe, insere o objeto (criado, requisitado, etc) e uma mensagem de sucesso ou erro.
+        try {
+            // Em qualquer variável que não será modificada, é interessante usar o modificador final. Isso ajuda a evitar bugs acidentais, alem de deixar claro que aquela variável não deve ser reatribuída. 
+            // Também diminui a compelxidade do codigo + diminui uso de memória, já que o compilador pode otimizar melhor o código.
+            final ProductResponseDTO response = service.create(dto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(response, "Produto criado com sucesso"));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Erro interno ao criar produto"));
+        }
     }
 
     @GetMapping

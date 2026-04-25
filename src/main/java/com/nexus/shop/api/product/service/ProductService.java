@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.persistence.repository.ProductRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class ProductService {
 
@@ -53,6 +55,9 @@ public class ProductService {
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
+        /*
+        DTO sem validação, ou seja, o cliente pode enviar um campo nulo e isso vai sobrescrever o valor existente.
+        */
         existing.setName(dto.name());
         existing.setDescription(dto.description());
         existing.setPrice(dto.price());
@@ -89,10 +94,20 @@ public class ProductService {
         return toDTO(updated);
     }
 
-    public void delete(Long id){
-        repository.deleteById(id);
+    public void delete(final Long id){
+        // Pra evitar exeptions/ problemas no banco / id nullo; verifica se a entidade existe antes de tentar deletar.
+        final Product entity = repository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+
+        this.repository.delete(entity);
     }
 
+    /*  
+    Esse metodo poderia ser colocado em um mapper separado. A pasta utils serve para isso.
+    O ideal é criar uma classe lá como "ConverterHelper","ConverterUtil" etc 
+    colocar esse tipo de método lá no modo static.
+    Pois em outros lugares precisaremos fazer conversão para dto, exemplo -> Cart, Order.
+    */
     private ProductResponseDTO toDTO(Product product) {
         return new ProductResponseDTO(
                 product.getId(),
