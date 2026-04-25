@@ -1,4 +1,4 @@
-package com.nexus.shop.model.product.dto;
+package com.nexus.shop.model.product.response;
 
 import java.math.BigDecimal;
 import com.nexus.shop.model.product.enums.Category;

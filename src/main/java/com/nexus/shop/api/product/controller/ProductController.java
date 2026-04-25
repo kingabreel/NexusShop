@@ -7,9 +7,10 @@ import java.util.List;
 
 import com.nexus.shop.api.product.service.ProductService;
 import com.nexus.shop.model.ApiResponse;
-import com.nexus.shop.model.product.dto.ProductCreateDTO;
-import com.nexus.shop.model.product.dto.ProductResponseDTO;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
+import com.nexus.shop.model.product.request.ProductCreateDTO;
+import com.nexus.shop.model.product.response.ProductResponseDTO;
+
 import jakarta.validation.Valid;
 
 @RestController

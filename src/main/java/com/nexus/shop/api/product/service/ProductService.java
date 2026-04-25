@@ -1,7 +1,5 @@
 package com.nexus.shop.api.product.service;
 
-import com.nexus.shop.model.product.dto.ProductCreateDTO;
-import com.nexus.shop.model.product.dto.ProductResponseDTO;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 
 import java.util.List;
@@ -9,6 +7,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.nexus.shop.model.product.entity.Product;
+import com.nexus.shop.model.product.request.ProductCreateDTO;
+import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.persistence.repository.ProductRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -23,12 +23,13 @@ public class ProductService {
     }
 
     public ProductResponseDTO create(ProductCreateDTO dto) {
+        // Modifiquei DTO do formato "class" para "record"
         Product product = new Product(
-                dto.getName(),
-                dto.getDescription(),
-                dto.getPrice(),
-                dto.getStock(),
-                dto.getCategory()
+                dto.name(),
+                dto.description(),
+                dto.price(),
+                dto.stock(),
+                dto.category()
         );
 
         Product saved = repository.save(product);
