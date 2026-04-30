@@ -10,6 +10,7 @@ import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.persistence.repository.ProductRepository;
+import com.nexus.shop.utils.converters.ConverterUtil;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -23,7 +24,6 @@ public class ProductService {
     }
 
     public ProductResponseDTO create(ProductCreateDTO dto) {
-        // Modifiquei DTO do formato "class" para "record"
         Product product = new Product(
                 dto.name(),
                 dto.description(),
@@ -34,13 +34,13 @@ public class ProductService {
 
         Product saved = repository.save(product);
 
-        return toDTO(saved);
+        return ConverterUtil.toDTO(saved);
     }
 
     public List<ProductResponseDTO> findAll(){
         return repository.findAll()
                 .stream()
-                .map(this::toDTO)
+                .map(ConverterUtil::toDTO)
                 .toList();
     }
 
@@ -48,7 +48,7 @@ public class ProductService {
         Product product = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        return toDTO(product);
+        return ConverterUtil.toDTO(product);
     }
 
     public ProductResponseDTO update(Long id, ProductUpdateDTO dto){
@@ -56,18 +56,25 @@ public class ProductService {
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        /*
-        DTO sem validação, ou seja, o cliente pode enviar um campo nulo e isso vai sobrescrever o valor existente.
-        */
-        existing.setName(dto.name());
+        if(dto.name() != null) {
+            existing.setName(dto.name());
+        }
         existing.setDescription(dto.description());
-        existing.setPrice(dto.price());
-        existing.setStock(dto.stock());
-        existing.setCategory(dto.category());
+
+        if(dto.price() != null) {
+            existing.setPrice(dto.price());
+        }
+
+        if(dto.stock() != null) {
+            existing.setStock(dto.stock());
+        }
+
+        if(dto.category() != null){
+            existing.setCategory(dto.category());
+        }
 
         Product updated = repository.save(existing);
-
-        return toDTO(updated);
+        return ConverterUtil.toDTO(updated);
     }
 
     public ProductResponseDTO updatePartial(Long id, ProductUpdateDTO dto){
@@ -92,32 +99,14 @@ public class ProductService {
 
         Product updated = repository.save(existing);
 
-        return toDTO(updated);
+        return ConverterUtil.toDTO(updated);
     }
 
     public void delete(final Long id){
-        // Pra evitar exeptions/ problemas no banco / id nullo; verifica se a entidade existe antes de tentar deletar.
         final Product entity = repository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
+            .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
         this.repository.delete(entity);
-    }
-
-    /*  
-    Esse metodo poderia ser colocado em um mapper separado. A pasta utils serve para isso.
-    O ideal é criar uma classe lá como "ConverterHelper","ConverterUtil" etc 
-    colocar esse tipo de método lá no modo static.
-    Pois em outros lugares precisaremos fazer conversão para dto, exemplo -> Cart, Order.
-    */
-    private ProductResponseDTO toDTO(Product product) {
-        return new ProductResponseDTO(
-                product.getId(),
-                product.getName(),
-                product.getDescription(),
-                product.getPrice(),
-                product.getStock(),
-                product.getCategory()
-        );
     }
 
 }

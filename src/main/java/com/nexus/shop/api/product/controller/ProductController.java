@@ -3,6 +3,7 @@ package com.nexus.shop.api.product.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 import com.nexus.shop.api.product.service.ProductService;
@@ -25,16 +26,11 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponseDTO>> create(@RequestBody @Valid ProductCreateDTO dto) {
-        // Esse formato é ideal pra lidar com erros de validação e exceções.
-        // Assim já retorna o status correto e uma mensagem de erro amigável :)
 
-        // O que fiz foi criar uma classe ApiResponse genérica pra padronizar as respostas da API, tanto de sucesso quanto de erro.
-        // Agora a gente retorna sempre essa classe, insere o objeto (criado, requisitado, etc) e uma mensagem de sucesso ou erro.
         try {
-            // Em qualquer variável que não será modificada, é interessante usar o modificador final. Isso ajuda a evitar bugs acidentais, alem de deixar claro que aquela variável não deve ser reatribuída. 
-            // Também diminui a compelxidade do codigo + diminui uso de memória, já que o compilador pode otimizar melhor o código.
             final ProductResponseDTO response = service.create(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>(response, "Produto criado com sucesso"));
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(new ApiResponse<>(response, "Successfully created product"));
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity
@@ -44,39 +40,98 @@ public class ProductController {
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(null, "Erro interno ao criar produto"));
+                    .body(new ApiResponse<>(null, "Internal error while creating product"));
         }
     }
 
     @GetMapping
-    public List<ProductResponseDTO> findAll() {
-        return service.findAll();
+    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> findAll() {
+        try {
+            final List<ProductResponseDTO> response = service.findAll();
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Success in listing the products"));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Internal error while listing products"));
+        }
     }
 
     @GetMapping("/{id}")
-    public ProductResponseDTO findById(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> findById(@PathVariable Long id) {
+        try {
+            final ProductResponseDTO response = service.findById(id);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Successfully searched for product by ID"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Internal error while listing product by ID"));
+        }
     }
 
     @PutMapping("/{id}")
-    public ProductResponseDTO update(
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> update(
             @PathVariable Long id,
             @RequestBody @Valid ProductUpdateDTO dto) {
-
-        return service.update(id, dto);
+        try {
+            final ProductResponseDTO response = service.update(id, dto);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Product update successful"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Error updating product"));
+        }
     }
 
     @PatchMapping("/{id}")
-    public ProductResponseDTO partialUpdate(
+    public ResponseEntity<ApiResponse<ProductResponseDTO>> partialUpdate(
             @PathVariable Long id,
             @RequestBody ProductUpdateDTO dto) {
-
-        return service.updatePartial(id, dto);
+        try {
+            final ProductResponseDTO response = service.updatePartial(id, dto);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Successful partial product update"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Error updating product partially"));
+        }
     }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+        try {
+            service.delete(id);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(null, "Product deletion successful"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Error deleting product"));
+        }
     }
-
 }

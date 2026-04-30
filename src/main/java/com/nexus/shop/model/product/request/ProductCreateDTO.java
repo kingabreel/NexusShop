@@ -7,8 +7,6 @@ import java.math.BigDecimal;
 
 import com.nexus.shop.model.product.enums.Category;
 
-// A partir do java 17, foi lançado o record
-// Basicamente você só define as variaveis como parametros e ele já gera o construtor, getters e setters automaticamente :)
 public record ProductCreateDTO(
         @NotBlank String name,
         String description,
