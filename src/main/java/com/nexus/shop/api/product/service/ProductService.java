@@ -1,8 +1,8 @@
 package com.nexus.shop.api.product.service;
 
-import com.nexus.shop.model.product.dto.ProductUpdateDTO;
-
 import java.math.BigDecimal;
+
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
+import com.nexus.shop.model.product.dto.ProductUpdateDTO;
+import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.persistence.repository.ProductRepository;
@@ -64,33 +66,21 @@ public class ProductService {
         return ConverterUtil.toDTO(product);
     }
 
-    public ProductResponseDTO update(Long id, ProductUpdateDTO dto) {
-
+    public ProductResponseDTO update(Long id, ProductUpdateDTO dto){
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        if (dto.name() != null) {
-            existing.setName(dto.name());
-        }
+        existing.setName(dto.name());
         existing.setDescription(dto.description());
-
-        if (dto.price() != null) {
-            existing.setPrice(dto.price());
-        }
-
-        if (dto.stock() != null) {
-            existing.setStock(dto.stock());
-        }
-
-        if (dto.category() != null) {
-            existing.setCategory(dto.category());
-        }
+        existing.setPrice(dto.price());
+        existing.setStock(dto.stock());
+        existing.setCategory(dto.category());
 
         Product updated = repository.save(existing);
         return ConverterUtil.toDTO(updated);
     }
 
-    public ProductResponseDTO updatePartial(Long id, ProductUpdateDTO dto) {
+    public ProductResponseDTO updatePartial(Long id, ProductPatchDTO dto){
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
@@ -117,7 +107,7 @@ public class ProductService {
 
     public void delete(final Long id) {
         final Product entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+            .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         this.repository.delete(entity);
     }

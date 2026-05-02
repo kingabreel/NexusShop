@@ -2,11 +2,13 @@ package com.nexus.shop.model.product.dto;
 
 import java.math.BigDecimal;
 import com.nexus.shop.model.product.enums.Category;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record ProductUpdateDTO(
-        String name,
+        @NotBlank String name,
         String description,
-        BigDecimal price,
-        Integer stock,
-        Category category
+        @NotNull BigDecimal price,
+        @NotNull Integer stock,
+        @NotNull Category category
 ) {}
