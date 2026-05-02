@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.nexus.shop.api.auth.controller.AuthController;
 import com.nexus.shop.infra.security.JwtService;
 import com.nexus.shop.model.auth.entity.Role;
 import com.nexus.shop.model.auth.entity.User;
