@@ -1,0 +1,47 @@
+name: Spring Boot CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test-quality:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Build and run tests
+        run: mvn clean verify
+
+      - name: Run Checkstyle
+        run: mvn checkstyle:check
+      
+      - name: Run SpotBugs
+        run: mvn com.github.spotbugs:spotbugs-maven-plugin:check || true
+
+      - name: Build Docker image
+        run: docker build -t nexusshop-api:latest .
+
+      - name: Start container
+        run: |
+          docker run -d -p 8080:8080 --name app nexusshop-api:latest
+          sleep 20
+
+      - name: Health check
+        run: |
+          curl --fail http://localhost:8080/actuator/health || exit 1
+
+      - name: Stop container
+        run: docker stop app && docker rm app
