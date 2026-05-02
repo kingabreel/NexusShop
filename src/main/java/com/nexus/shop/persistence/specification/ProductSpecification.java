@@ -7,6 +7,9 @@ import org.springframework.data.jpa.domain.Specification;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class ProductSpecification {
 
     public static Specification<Product> nameContains(String name) {

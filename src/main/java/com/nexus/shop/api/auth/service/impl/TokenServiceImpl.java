@@ -56,7 +56,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public java.util.Optional<Token> findByToken(String token) {
+    public java.util.Optional<Token> findByToken(final String token) {
         return tokenRepository.findByToken(token);
     }
 }
