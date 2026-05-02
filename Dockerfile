@@ -5,6 +5,7 @@ COPY pom.xml .
 RUN mvn -q -e -DskipTests dependency:go-offline
 
 COPY src ./src
+COPY checkstyle.xml .
 
 RUN mvn -q -DskipTests package
 
