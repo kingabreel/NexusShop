@@ -1,14 +1,20 @@
 package com.nexus.shop.api.product.controller;
 
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.math.BigDecimal;
 
 import com.nexus.shop.api.product.service.ProductService;
 import com.nexus.shop.model.ApiResponse;
+import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
+import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 
@@ -45,9 +51,23 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> findAll() {
+    public ResponseEntity<ApiResponse<Page<ProductResponseDTO>>> findAll(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) Category category,
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size,
+            @RequestParam(required = false, defaultValue = "name") String sort) {
         try {
-            final List<ProductResponseDTO> response = service.findAll();
+            final Pageable pageable = PageRequest.of(
+                    page != null ? page : 0,
+                    size != null ? size : 10,
+                    Sort.by(sort != null ? sort : "id").ascending());
+
+            final Page<ProductResponseDTO> response = service.findAll(
+                    name, minPrice, maxPrice, category, pageable);
+
             return ResponseEntity
                     .status(HttpStatus.OK)
                     .body(new ApiResponse<>(response, "Success in listing the products"));
@@ -100,7 +120,7 @@ public class ProductController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponseDTO>> partialUpdate(
             @PathVariable Long id,
-            @RequestBody ProductUpdateDTO dto) {
+            @RequestBody ProductPatchDTO dto) {
         try {
             final ProductResponseDTO response = service.updatePartial(id, dto);
             return ResponseEntity
