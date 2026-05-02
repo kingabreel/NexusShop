@@ -4,5 +4,7 @@ public enum Category {
     ELETRONICOS,
     ROUPAS,
     ALIMENTOS,
-    MOVEIS
+    MOVEIS,
+    ACESSORIOS,
+    ELETRODOMESTICOS
 }
