@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 
 import com.nexus.shop.api.product.service.ProductService;
 import com.nexus.shop.model.ApiResponse;
+import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
@@ -119,7 +120,7 @@ public class ProductController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponseDTO>> partialUpdate(
             @PathVariable Long id,
-            @RequestBody ProductUpdateDTO dto) {
+            @RequestBody ProductPatchDTO dto) {
         try {
             final ProductResponseDTO response = service.updatePartial(id, dto);
             return ResponseEntity

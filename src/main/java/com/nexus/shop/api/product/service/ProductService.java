@@ -2,8 +2,6 @@ package com.nexus.shop.api.product.service;
 
 import java.math.BigDecimal;
 
-import java.util.List;
-
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
@@ -66,7 +64,7 @@ public class ProductService {
         return ConverterUtil.toDTO(product);
     }
 
-    public ProductResponseDTO update(Long id, ProductUpdateDTO dto){
+    public ProductResponseDTO update(Long id, ProductUpdateDTO dto) {
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
@@ -80,7 +78,7 @@ public class ProductService {
         return ConverterUtil.toDTO(updated);
     }
 
-    public ProductResponseDTO updatePartial(Long id, ProductPatchDTO dto){
+    public ProductResponseDTO updatePartial(Long id, ProductPatchDTO dto) {
         Product existing = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
@@ -107,7 +105,7 @@ public class ProductService {
 
     public void delete(final Long id) {
         final Product entity = repository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         this.repository.delete(entity);
     }
