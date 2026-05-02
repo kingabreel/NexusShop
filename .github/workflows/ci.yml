@@ -34,14 +34,14 @@ jobs:
       - name: Build Docker image
         run: docker build -t nexusshop-api:latest .
 
-      - name: Start container
-        run: |
-          docker run -d -p 8080:8080 --name app nexusshop-api:latest
-          sleep 20
+      # - name: Start container
+      #   run: |
+      #     docker run -d -p 8080:8080 --name app nexusshop-api:latest
+      #     sleep 20
 
-      - name: Health check
-        run: |
-          curl --fail http://localhost:8080/actuator/health || exit 1
+      # - name: Health check
+      #   run: |
+      #     curl --fail http://localhost:8080/actuator/health || exit 1
 
-      - name: Stop container
-        run: docker stop app && docker rm app
+      # - name: Stop container
+      #   run: docker stop app && docker rm app

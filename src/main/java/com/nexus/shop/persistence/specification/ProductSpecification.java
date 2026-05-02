@@ -7,7 +7,11 @@ import org.springframework.data.jpa.domain.Specification;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 
-public class ProductSpecification {
+public final class ProductSpecification {
+
+    private ProductSpecification() {
+        throw new UnsupportedOperationException("Utility class");
+    }
 
     public static Specification<Product> nameContains(String name) {
         return (root, query, cb) -> name == null ? null
