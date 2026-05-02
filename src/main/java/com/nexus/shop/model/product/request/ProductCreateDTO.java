@@ -8,9 +8,9 @@ import java.math.BigDecimal;
 import com.nexus.shop.model.product.enums.Category;
 
 public record ProductCreateDTO(
-        @NotBlank String name,
-        String description,
-        @NotNull @Positive BigDecimal price,
-        @NotNull Integer stock,
-        @NotNull Category category
-) {}
+                @NotBlank String name,
+                String description,
+                @NotNull @Positive BigDecimal price,
+                @NotNull Integer stock,
+                @NotNull Category category) {
+}

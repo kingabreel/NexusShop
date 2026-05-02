@@ -6,9 +6,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record ProductUpdateDTO(
-        @NotBlank String name,
-        String description,
-        @NotNull BigDecimal price,
-        @NotNull Integer stock,
-        @NotNull Category category
-) {}
+                @NotBlank String name,
+                String description,
+                @NotNull BigDecimal price,
+                @NotNull Integer stock,
+                @NotNull Category category) {
+}

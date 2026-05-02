@@ -2,7 +2,12 @@ package com.nexus.shop.utils.converters;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.model.product.entity.Product;
 
-public class ConverterUtil {
+public final class ConverterUtil {
+    
+    private ConverterUtil() {
+        throw new UnsupportedOperationException("Utility class");
+    }
+
     public static ProductResponseDTO toDTO(Product product) {
         return new ProductResponseDTO(
                 product.getId(),

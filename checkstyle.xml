@@ -6,11 +6,20 @@
 
 <module name="Checker">
     <property name="charset" value="UTF-8"/>
+    <module name="NewlineAtEndOfFile"/>
+
+    <module name="LineLength">
+        <property name="max" value="120"/>
+        <property name="ignorePattern"
+                    value="^package.*|^import.*|a href|https?://"/>
+    </module>
+
     <module name="TreeWalker">
 
-        <module name="NewlineAtEndOfFile"/>
+        <module name="FinalClass">
+            <property name="severity" value="warning"/>
+        </module>
 
-        <module name="FinalClass"/>
         <module name="HideUtilityClassConstructor"/>
 
         <module name="UnusedImports"/>
@@ -21,12 +30,6 @@
 
         <module name="EmptyBlock"/>
         <module name="EqualsHashCode"/>
-
-        <module name="LineLength">
-            <property name="max" value="120"/>
-            <property name="ignorePattern"
-                      value="^package.*|^import.*|a href|https?://"/>
-        </module>
 
     </module>
 

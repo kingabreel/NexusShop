@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import com.nexus.shop.model.product.enums.Category;
 
 @Entity
-@Table (name = "product")
+@Table(name = "product")
 @Getter
 @Setter
 public class Product {
@@ -16,22 +16,22 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private String name;
 
     private String description;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private BigDecimal price;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     private Integer stock;
 
-    @Column (nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    public Product(){
+    public Product() {
     }
 
     public Product(String name, String description, BigDecimal price, Integer stock, Category category) {
