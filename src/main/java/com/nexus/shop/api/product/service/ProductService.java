@@ -116,7 +116,7 @@ public class ProductService {
     }
 
     public Page<ProductResponseDTO> findHighlighted(final Pageable pageable) {
-        final Page<Product> productPage = repository.findByIsHighlightedTrue(pageable);
+        final Page<Product> productPage = repository.findByHighlight(true, pageable);
 
         final List<ProductResponseDTO> dtoList = new ArrayList<>();
 

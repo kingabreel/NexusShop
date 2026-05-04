@@ -9,5 +9,5 @@ import com.nexus.shop.model.product.entity.Product;
 
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
 
-    Page<Product> findByIsHighlightedTrue(Pageable pageable);
+    Page<Product> findByHighlight(boolean highlight, Pageable pageable);
 }
