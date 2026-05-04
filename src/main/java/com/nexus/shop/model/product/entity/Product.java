@@ -2,16 +2,21 @@ package com.nexus.shop.model.product.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.nexus.shop.model.product.enums.Category;
+import com.nexus.shop.model.product.enums.Tag;
 
 @Entity
 @Table(name = "product")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Product {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,14 +36,28 @@ public class Product {
     @Enumerated(EnumType.STRING)
     private Category category;
 
-    public Product() {
-    }
+    @ElementCollection
+    @Enumerated(EnumType.STRING)
+    private List<Tag> tags = new ArrayList<>();
 
-    public Product(String name, String description, BigDecimal price, Integer stock, Category category) {
+    private boolean highlight = false;
+
+    public Product(
+            final String name,
+            final String description,
+            final BigDecimal price,
+            final Integer stock,
+            final Category category,
+            final List<Tag> tags,
+            final boolean highlight
+        ) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
         this.category = category;
+        this.tags = tags;
+        this.highlight = highlight;
     }
+
 }

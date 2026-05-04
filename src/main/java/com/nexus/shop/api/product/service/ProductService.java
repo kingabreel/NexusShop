@@ -1,6 +1,7 @@
 package com.nexus.shop.api.product.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
@@ -26,13 +27,15 @@ public class ProductService {
         this.repository = repository;
     }
 
-    public ProductResponseDTO create(ProductCreateDTO dto) {
+    public ProductResponseDTO create(ProductCreateDTO dto) {       
         Product product = new Product(
                 dto.name(),
                 dto.description(),
                 dto.price(),
                 dto.stock(),
-                dto.category());
+                dto.category(),
+                new ArrayList<>(),
+                false);
 
         Product saved = repository.save(product);
 
