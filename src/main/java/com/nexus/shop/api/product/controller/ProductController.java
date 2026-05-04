@@ -154,4 +154,26 @@ public class ProductController {
                     .body(new ApiResponse<>(null, "Error deleting product"));
         }
     }
+
+    @GetMapping("/highlighted") 
+    public ResponseEntity<ApiResponse<Page<ProductResponseDTO>>> findHighlighted(
+            @RequestParam(required = false, defaultValue = "0") Integer page,
+            @RequestParam(required = false, defaultValue = "10") Integer size) {
+        try {
+            final Pageable pageable = PageRequest.of(
+                    page != null ? page : 0,
+                    size != null ? size : 10,
+                    Sort.by("name").ascending());
+
+            final Page<ProductResponseDTO> response = service.findHighlighted(pageable);
+
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Success in listing highlighted products"));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Internal error while listing highlighted products"));
+        }
+    }
 }
