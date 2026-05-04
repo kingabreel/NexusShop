@@ -1,9 +1,12 @@
 package com.nexus.shop.api.product.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +35,9 @@ public class ProductService {
                 dto.description(),
                 dto.price(),
                 dto.stock(),
-                dto.category());
+                dto.category(),
+                new ArrayList<>(),
+                false);
 
         Product saved = repository.save(product);
 
@@ -110,4 +115,18 @@ public class ProductService {
         this.repository.delete(entity);
     }
 
+    public Page<ProductResponseDTO> findHighlighted(final Pageable pageable) {
+        final Page<Product> productPage = repository.findByHighlight(true, pageable);
+
+        final List<ProductResponseDTO> dtoList = new ArrayList<>();
+
+        for (final Product product : productPage.getContent()) {
+            dtoList.add(ConverterUtil.toDTO(product));
+        }
+
+        return new PageImpl<>(
+                dtoList,
+                pageable,
+                productPage.getTotalElements());
+    }
 }

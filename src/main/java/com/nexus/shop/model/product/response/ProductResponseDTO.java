@@ -9,5 +9,6 @@ public record ProductResponseDTO(
                 String description,
                 BigDecimal price,
                 Integer stock,
-                Category category) {
+                Category category,
+                Boolean isHighlighted) {
 }

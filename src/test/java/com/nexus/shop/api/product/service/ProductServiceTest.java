@@ -8,6 +8,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,160 +33,172 @@ import com.nexus.shop.persistence.repository.ProductRepository;
 @ExtendWith(MockitoExtension.class)
 class ProductServiceTest {
 
-    @Mock
-    private ProductRepository repository;
+        @Mock
+        private ProductRepository repository;
 
-    @InjectMocks
-    private ProductService service;
+        @InjectMocks
+        private ProductService service;
 
-    @Test
-    void shouldCreateProductSuccessfully() {
-        ProductCreateDTO dto = new ProductCreateDTO(
-                "Phone",
-                "Nice phone",
-                BigDecimal.valueOf(1000),
-                10,
-                Category.ELETRONICOS);
+        @Test
+        void shouldCreateProductSuccessfully() {
+                ProductCreateDTO dto = new ProductCreateDTO(
+                                "Phone",
+                                "Nice phone",
+                                BigDecimal.valueOf(1000),
+                                10,
+                                Category.ELETRONICOS);
 
-        Product saved = new Product(
-                dto.name(),
-                dto.description(),
-                dto.price(),
-                dto.stock(),
-                dto.category());
-        saved.setId(1L);
+                Product saved = new Product(
+                                dto.name(),
+                                dto.description(),
+                                dto.price(),
+                                dto.stock(),
+                                dto.category(),
+                                new ArrayList<>(),
+                                false);
+                saved.setId(1L);
 
-        when(repository.save(any(Product.class))).thenReturn(saved);
+                when(repository.save(any(Product.class))).thenReturn(saved);
 
-        ProductResponseDTO result = service.create(dto);
+                ProductResponseDTO result = service.create(dto);
 
-        assertNotNull(result);
-        assertEquals("Phone", result.name());
-        assertEquals(BigDecimal.valueOf(1000), result.price());
+                assertNotNull(result);
+                assertEquals("Phone", result.name());
+                assertEquals(BigDecimal.valueOf(1000), result.price());
 
-        verify(repository).save(any(Product.class));
-    }
+                verify(repository).save(any(Product.class));
+        }
 
-    @Test
-    void shouldFindProductById() {
-        Product product = new Product(
-                "Mouse",
-                "Gaming mouse",
-                BigDecimal.valueOf(200),
-                5,
-                Category.ELETRONICOS);
-        product.setId(1L);
+        @Test
+        void shouldFindProductById() {
+                Product product = new Product(
+                                "Mouse",
+                                "Gaming mouse",
+                                BigDecimal.valueOf(200),
+                                5,
+                                Category.ELETRONICOS,
+                                new ArrayList<>(),
+                                false);
+                product.setId(1L);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+                when(repository.findById(1L)).thenReturn(Optional.of(product));
 
-        ProductResponseDTO result = service.findById(1L);
+                ProductResponseDTO result = service.findById(1L);
 
-        assertNotNull(result);
-        assertEquals("Mouse", result.name());
-    }
+                assertNotNull(result);
+                assertEquals("Mouse", result.name());
+        }
 
-    @Test
-    void shouldThrowExceptionWhenProductNotFound() {
-        when(repository.findById(1L)).thenReturn(Optional.empty());
+        @Test
+        void shouldThrowExceptionWhenProductNotFound() {
+                when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        RuntimeException ex = assertThrows(RuntimeException.class,
-                () -> service.findById(1L));
+                RuntimeException ex = assertThrows(RuntimeException.class,
+                                () -> service.findById(1L));
 
-        assertEquals("Product not found with id: 1", ex.getMessage());
-    }
+                assertEquals("Product not found with id: 1", ex.getMessage());
+        }
 
-    @Test
-    void shouldUpdateProduct() {
-        Product existing = new Product(
-                "Old",
-                "Old desc",
-                BigDecimal.valueOf(100),
-                1,
-                Category.ELETRONICOS);
-        existing.setId(1L);
+        @Test
+        void shouldUpdateProduct() {
+                Product existing = new Product(
+                                "Old",
+                                "Old desc",
+                                BigDecimal.valueOf(100),
+                                1,
+                                Category.ELETRONICOS,
+                                new ArrayList<>(),
+                                false);
+                existing.setId(1L);
 
-        ProductUpdateDTO dto = new ProductUpdateDTO(
-                "New",
-                "New desc",
-                BigDecimal.valueOf(200),
-                2,
-                Category.MOVEIS);
+                ProductUpdateDTO dto = new ProductUpdateDTO(
+                                "New",
+                                "New desc",
+                                BigDecimal.valueOf(200),
+                                2,
+                                Category.MOVEIS);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        when(repository.save(any(Product.class))).thenReturn(existing);
+                when(repository.findById(1L)).thenReturn(Optional.of(existing));
+                when(repository.save(any(Product.class))).thenReturn(existing);
 
-        ProductResponseDTO result = service.update(1L, dto);
+                ProductResponseDTO result = service.update(1L, dto);
 
-        assertEquals("New", result.name());
-        assertEquals(Category.MOVEIS, result.category());
+                assertEquals("New", result.name());
+                assertEquals(Category.MOVEIS, result.category());
 
-        verify(repository).save(existing);
-    }
+                verify(repository).save(existing);
+        }
 
-    @Test
-    void shouldPatchProductPartially() {
-        Product existing = new Product(
-                "Old",
-                "Old desc",
-                BigDecimal.valueOf(100),
-                1,
-                Category.ELETRONICOS);
-        existing.setId(1L);
+        @Test
+        void shouldPatchProductPartially() {
+                Product existing = new Product(
+                                "Old",
+                                "Old desc",
+                                BigDecimal.valueOf(100),
+                                1,
+                                Category.ELETRONICOS,
+                                new ArrayList<>(),
+                                false);
+                existing.setId(1L);
 
-        ProductPatchDTO dto = new ProductPatchDTO(
-                null,
-                "Updated desc",
-                null,
-                null,
-                null);
+                ProductPatchDTO dto = new ProductPatchDTO(
+                                null,
+                                "Updated desc",
+                                null,
+                                null,
+                                null);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(existing));
-        when(repository.save(any(Product.class))).thenReturn(existing);
+                when(repository.findById(1L)).thenReturn(Optional.of(existing));
+                when(repository.save(any(Product.class))).thenReturn(existing);
 
-        ProductResponseDTO result = service.updatePartial(1L, dto);
+                ProductResponseDTO result = service.updatePartial(1L, dto);
 
-        assertEquals("Old", result.name());
-        assertEquals("Updated desc", result.description());
+                assertEquals("Old", result.name());
+                assertEquals("Updated desc", result.description());
 
-        verify(repository).save(existing);
-    }
+                verify(repository).save(existing);
+        }
 
-    @Test
-    void shouldDeleteProduct() {
-        Product product = new Product(
-                "Test",
-                "Desc",
-                BigDecimal.TEN,
-                1,
-                Category.ELETRONICOS);
+        @Test
+        void shouldDeleteProduct() {
+                Product product = new Product(
+                                "Test",
+                                "Desc",
+                                BigDecimal.TEN,
+                                1,
+                                Category.ELETRONICOS,
+                                new ArrayList<>(),
+                                false);
 
-        when(repository.findById(1L)).thenReturn(Optional.of(product));
+                when(repository.findById(1L)).thenReturn(Optional.of(product));
 
-        service.delete(1L);
+                service.delete(1L);
 
-        verify(repository).delete(product);
-    }
+                verify(repository).delete(product);
+        }
 
-    @SuppressWarnings("unchecked")
-    @Test
-    void shouldReturnPagedProducts() {
-        Product product = new Product(
-                "Phone",
-                "Desc",
-                BigDecimal.TEN,
-                1,
-                Category.ELETRONICOS);
+        @SuppressWarnings("unchecked")
+        @Test
+        void shouldReturnPagedProducts() {
+                Product product = new Product(
+                                "Phone",
+                                "Desc",
+                                BigDecimal.TEN,
+                                1,
+                                Category.ELETRONICOS,
+                                new ArrayList<>(),
+                                false);
 
-        Page<Product> page = new PageImpl<>(List.of(product));
+                Page<Product> page = new PageImpl<>(List.of(product));
 
-        when(repository.findAll(
-                any(Specification.class),
-                any(Pageable.class))).thenReturn(page);
+                when(repository.findAll(
+                                any(Specification.class),
+                                any(Pageable.class))).thenReturn(page);
 
-        Page<ProductResponseDTO> result = service.findAll(
-                null, null, null, null, Pageable.unpaged());
+                Page<ProductResponseDTO> result = service.findAll(
+                                null, null, null, null, Pageable.unpaged());
 
-        assertEquals(1, result.getTotalElements());
-        assertEquals("Phone", result.getContent().get(0).name());
-    }
+                assertEquals(1, result.getTotalElements());
+                assertEquals("Phone", result.getContent().get(0).name());
+        }
 }

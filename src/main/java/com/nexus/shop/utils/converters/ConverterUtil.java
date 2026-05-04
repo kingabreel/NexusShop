@@ -15,7 +15,8 @@ public final class ConverterUtil {
                 product.getDescription(),
                 product.getPrice(),
                 product.getStock(),
-                product.getCategory()
+                product.getCategory(),
+                product.isHighlight()
         );
     }
 }

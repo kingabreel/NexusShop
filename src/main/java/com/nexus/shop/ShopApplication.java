@@ -7,8 +7,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class ShopApplication {
 	
 	private ShopApplication() {
-        throw new UnsupportedOperationException("Utility class");
-    }
+
+	}
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShopApplication.class, args);
