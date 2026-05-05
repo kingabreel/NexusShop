@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
+import com.nexus.shop.api.analytics.service.ProductAnalyticService;
+import com.nexus.shop.api.analytics.service.UserHistoryService;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
@@ -24,9 +26,16 @@ import com.nexus.shop.utils.converters.ConverterUtil;
 public class ProductService {
 
     private final ProductRepository repository;
+    private final ProductAnalyticService productAnalyticService;
+    private final UserHistoryService userHistoryService;
 
-    public ProductService(ProductRepository repository) {
+    public ProductService(
+            final ProductRepository repository,
+            final ProductAnalyticService productAnalyticService,
+            final UserHistoryService userHistoryService) {
         this.repository = repository;
+        this.productAnalyticService = productAnalyticService;
+        this.userHistoryService = userHistoryService;
     }
 
     public ProductResponseDTO create(ProductCreateDTO dto) {
@@ -63,8 +72,13 @@ public class ProductService {
     }
 
     public ProductResponseDTO findById(Long id) {
-        Product product = repository.findById(id)
+        final Product product = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        this.productAnalyticService.addProductView(product);
+
+        // TODO: Adicionar usuario logado aqui, futuramente 
+        this.userHistoryService.addProductView(product);
 
         return ConverterUtil.toDTO(product);
     }
