@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
@@ -29,6 +30,7 @@ public class ProductService {
     private final ProductAnalyticService productAnalyticService;
     private final UserHistoryService userHistoryService;
 
+    @Autowired
     public ProductService(
             final ProductRepository repository,
             final ProductAnalyticService productAnalyticService,
@@ -75,10 +77,12 @@ public class ProductService {
         final Product product = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        this.productAnalyticService.addProductView(product);
+        if (null != this.productAnalyticService && null != this.userHistoryService) {
+            this.productAnalyticService.addProductView(product);
 
-        // TODO: Adicionar usuario logado aqui, futuramente 
-        this.userHistoryService.addProductView(product);
+            // TODO: Adicionar usuario logado aqui, futuramente
+            this.userHistoryService.addProductView(product);
+        }
 
         return ConverterUtil.toDTO(product);
     }
