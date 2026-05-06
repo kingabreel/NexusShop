@@ -1,7 +1,7 @@
 package com.nexus.shop.model.notification.entity;
 
 import com.nexus.shop.model.auth.entity.User;
-import com.nexus.shop.model.notification.dto.Status;
+import com.nexus.shop.model.notification.enums.Status;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

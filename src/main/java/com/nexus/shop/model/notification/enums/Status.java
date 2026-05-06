@@ -1,4 +1,4 @@
-package com.nexus.shop.model.notification.dto;
+package com.nexus.shop.model.notification.enums;
 
 public enum Status {
     READ,
