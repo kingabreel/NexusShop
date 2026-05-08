@@ -24,7 +24,6 @@ public class WebSocketService {
         this.messagingTemplate.convertAndSendToUser(
                 userId,
                 QUEUE_USER_NOTIFICATIONS,
-                message
-        );
+                message);
     }
 }
