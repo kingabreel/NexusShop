@@ -19,7 +19,7 @@ import lombok.Setter;
 @Table(name = "notification")
 @Getter
 @Setter
-public class Notification extends AbstractEntity{
+public class Notification extends AbstractEntity {
 
     private String message;
 
