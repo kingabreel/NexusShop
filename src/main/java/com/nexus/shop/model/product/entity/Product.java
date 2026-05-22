@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nexus.shop.model.AbstractEntity;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.enums.Tag;
 
@@ -16,10 +17,7 @@ import com.nexus.shop.model.product.enums.Tag;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Product extends AbstractEntity{
 
     @Column(nullable = false)
     private String name;
