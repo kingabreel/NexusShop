@@ -8,6 +8,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nexus.shop.model.AbstractEntity;
+import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.enums.Tag;
 
@@ -16,10 +18,7 @@ import com.nexus.shop.model.product.enums.Tag;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Product {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Product extends AbstractEntity {
 
     @Column(nullable = false)
     private String name;
@@ -42,6 +41,10 @@ public class Product {
 
     private boolean highlight = false;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
     public Product(
             final String name,
             final String description,
@@ -49,8 +52,7 @@ public class Product {
             final Integer stock,
             final Category category,
             final List<Tag> tags,
-            final boolean highlight
-        ) {
+            final boolean highlight) {
         this.name = name;
         this.description = description;
         this.price = price;

@@ -3,6 +3,7 @@ package com.nexus.shop.api.product.service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,9 @@ import com.nexus.shop.persistence.repository.ProductRepository;
 import com.nexus.shop.persistence.specification.ProductSpecification;
 import com.nexus.shop.utils.converters.ConverterUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ProductService {
 
@@ -40,7 +44,7 @@ public class ProductService {
         this.userHistoryService = userHistoryService;
     }
 
-    public ProductResponseDTO create(ProductCreateDTO dto) {
+    public ProductResponseDTO create(final ProductCreateDTO dto) {
         Product product = new Product(
                 dto.name(),
                 dto.description(),
@@ -50,7 +54,7 @@ public class ProductService {
                 new ArrayList<>(),
                 false);
 
-        Product saved = repository.save(product);
+        Product saved = this.repository.save(product);
 
         return ConverterUtil.toDTO(saved);
     }
@@ -69,26 +73,28 @@ public class ProductService {
                 .and(ProductSpecification.maxPrice(maxPrice))
                 .and(ProductSpecification.categoryEquals(category));
 
-        return repository.findAll(spec, pageable)
+        return this.repository.findAll(spec, pageable)
                 .map(ConverterUtil::toDTO);
     }
 
-    public ProductResponseDTO findById(Long id) {
-        final Product product = repository.findById(id)
+    public ProductResponseDTO findById(final UUID id) {
+        final Product product = this.repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         if (null != this.productAnalyticService && null != this.userHistoryService) {
-            this.productAnalyticService.addProductView(product);
-
-            // TODO: Adicionar usuario logado aqui, futuramente
-            this.userHistoryService.addProductView(product);
+            try {
+                this.productAnalyticService.addProductView(product);
+                this.userHistoryService.addProductView(product);
+            } catch (Exception e) {
+                ProductService.log.error("Error recording product analytic: " + e.getMessage());
+            }
         }
 
         return ConverterUtil.toDTO(product);
     }
 
-    public ProductResponseDTO update(Long id, ProductUpdateDTO dto) {
-        Product existing = repository.findById(id)
+    public ProductResponseDTO update(final UUID id, final ProductUpdateDTO dto) {
+        final Product existing = this.repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         existing.setName(dto.name());
@@ -97,12 +103,12 @@ public class ProductService {
         existing.setStock(dto.stock());
         existing.setCategory(dto.category());
 
-        Product updated = repository.save(existing);
+        final Product updated = this.repository.save(existing);
         return ConverterUtil.toDTO(updated);
     }
 
-    public ProductResponseDTO updatePartial(Long id, ProductPatchDTO dto) {
-        Product existing = repository.findById(id)
+    public ProductResponseDTO updatePartial(final UUID id, final ProductPatchDTO dto) {
+        final Product existing = this.repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         if (dto.name() != null) {
@@ -121,20 +127,20 @@ public class ProductService {
             existing.setCategory(dto.category());
         }
 
-        Product updated = repository.save(existing);
+        final Product updated = this.repository.save(existing);
 
         return ConverterUtil.toDTO(updated);
     }
 
-    public void delete(final Long id) {
-        final Product entity = repository.findById(id)
+    public void delete(final UUID id) {
+        final Product entity = this.repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         this.repository.delete(entity);
     }
 
     public Page<ProductResponseDTO> findHighlighted(final Pageable pageable) {
-        final Page<Product> productPage = repository.findByHighlight(true, pageable);
+        final Page<Product> productPage = this.repository.findByHighlight(true, pageable);
 
         final List<ProductResponseDTO> dtoList = new ArrayList<>();
 

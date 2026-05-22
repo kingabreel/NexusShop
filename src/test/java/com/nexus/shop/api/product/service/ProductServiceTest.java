@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -56,7 +57,7 @@ class ProductServiceTest {
                                 dto.category(),
                                 new ArrayList<>(),
                                 false);
-                saved.setId(1L);
+                saved.setId(UUID.randomUUID());
 
                 when(repository.save(any(Product.class))).thenReturn(saved);
 
@@ -79,11 +80,11 @@ class ProductServiceTest {
                                 Category.ELETRONICOS,
                                 new ArrayList<>(),
                                 false);
-                product.setId(1L);
+                product.setId(UUID.randomUUID());
 
-                when(repository.findById(1L)).thenReturn(Optional.of(product));
+                when(repository.findById(any(UUID.class))).thenReturn(Optional.of(product));
 
-                ProductResponseDTO result = service.findById(1L);
+                ProductResponseDTO result = service.findById(product.getId());
 
                 assertNotNull(result);
                 assertEquals("Mouse", result.name());
@@ -91,12 +92,14 @@ class ProductServiceTest {
 
         @Test
         void shouldThrowExceptionWhenProductNotFound() {
-                when(repository.findById(1L)).thenReturn(Optional.empty());
+                when(repository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+                final UUID iUuid = UUID.randomUUID();
 
                 RuntimeException ex = assertThrows(RuntimeException.class,
-                                () -> service.findById(1L));
+                                () -> service.findById(iUuid));
 
-                assertEquals("Product not found with id: 1", ex.getMessage());
+                assertEquals("Product not found with id: " + iUuid, ex.getMessage());
         }
 
         @Test
@@ -109,7 +112,7 @@ class ProductServiceTest {
                                 Category.ELETRONICOS,
                                 new ArrayList<>(),
                                 false);
-                existing.setId(1L);
+                existing.setId(UUID.randomUUID());
 
                 ProductUpdateDTO dto = new ProductUpdateDTO(
                                 "New",
@@ -118,10 +121,10 @@ class ProductServiceTest {
                                 2,
                                 Category.MOVEIS);
 
-                when(repository.findById(1L)).thenReturn(Optional.of(existing));
+                when(repository.findById(any(UUID.class))).thenReturn(Optional.of(existing));
                 when(repository.save(any(Product.class))).thenReturn(existing);
 
-                ProductResponseDTO result = service.update(1L, dto);
+                ProductResponseDTO result = service.update(existing.getId(), dto);
 
                 assertEquals("New", result.name());
                 assertEquals(Category.MOVEIS, result.category());
@@ -139,7 +142,7 @@ class ProductServiceTest {
                                 Category.ELETRONICOS,
                                 new ArrayList<>(),
                                 false);
-                existing.setId(1L);
+                existing.setId(UUID.randomUUID());
 
                 ProductPatchDTO dto = new ProductPatchDTO(
                                 null,
@@ -148,10 +151,10 @@ class ProductServiceTest {
                                 null,
                                 null);
 
-                when(repository.findById(1L)).thenReturn(Optional.of(existing));
+                when(repository.findById(any(UUID.class))).thenReturn(Optional.of(existing));
                 when(repository.save(any(Product.class))).thenReturn(existing);
 
-                ProductResponseDTO result = service.updatePartial(1L, dto);
+                ProductResponseDTO result = service.updatePartial(existing.getId(), dto);
 
                 assertEquals("Old", result.name());
                 assertEquals("Updated desc", result.description());
@@ -169,10 +172,11 @@ class ProductServiceTest {
                                 Category.ELETRONICOS,
                                 new ArrayList<>(),
                                 false);
+                product.setId(UUID.randomUUID());
 
-                when(repository.findById(1L)).thenReturn(Optional.of(product));
+                when(repository.findById(any(UUID.class))).thenReturn(Optional.of(product));
 
-                service.delete(1L);
+                service.delete(product.getId());
 
                 verify(repository).delete(product);
         }
