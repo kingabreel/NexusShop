@@ -24,6 +24,9 @@ import com.nexus.shop.persistence.repository.ProductRepository;
 import com.nexus.shop.persistence.specification.ProductSpecification;
 import com.nexus.shop.utils.converters.ConverterUtil;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 public class ProductService {
 
@@ -79,10 +82,12 @@ public class ProductService {
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
         if (null != this.productAnalyticService && null != this.userHistoryService) {
-            this.productAnalyticService.addProductView(product);
-
-            // TODO: Adicionar usuario logado aqui, futuramente
-            this.userHistoryService.addProductView(product);
+            try {
+                this.productAnalyticService.addProductView(product);
+                this.userHistoryService.addProductView(product);
+            } catch (Exception e) {
+                ProductService.log.error("Error recording product analytic: " + e.getMessage());
+            }
         }
 
         return ConverterUtil.toDTO(product);

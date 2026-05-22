@@ -2,6 +2,7 @@ package com.nexus.shop.api.auth.service;
 
 import java.util.Set;
 
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    @Lazy
     private final AuthenticationManager authenticationManager;
 
     public String login(final LoginRequest request) {

@@ -6,6 +6,7 @@ import com.nexus.shop.model.analytic.entity.UserHistory;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.persistence.repository.UserHistoryRepository;
+import com.nexus.shop.utils.helpers.UserContextHelper;
 
 @Service
 public class UserHistoryService {
@@ -25,11 +26,13 @@ public class UserHistoryService {
     }
 
     public void addProductView(final Product product) {
-        if (null == product) {
+        final User user = UserContextHelper.getCurrentUser();
+
+        if (null == product || null == user) {
             return;
         }
 
-        this.repository.save(this.createAnalytic(product, null));
+        this.repository.save(this.createAnalytic(product, user));
     }
 
     private UserHistory createAnalytic(final Product product, final User user) {
