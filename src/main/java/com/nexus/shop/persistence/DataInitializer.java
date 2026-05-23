@@ -49,6 +49,7 @@ public class DataInitializer implements CommandLineRunner {
         private void createDefaultUser() {
                 final User user = new User(
                                 "admin",
+                                "admin@nexus.com",
                                 this.passwordEncoder.encode("admin"),
                                 Set.of(Role.CLIENT, Role.ADMIN));
                 this.userRepository.save(user);
