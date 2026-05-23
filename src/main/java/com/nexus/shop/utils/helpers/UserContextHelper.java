@@ -2,6 +2,7 @@ package com.nexus.shop.utils.helpers;
 
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.nexus.shop.model.auth.entity.User;
 
@@ -13,21 +14,36 @@ public final class UserContextHelper {
         throw new IllegalStateException("Utility class");
     }
 
-    public static User getCurrentUser() {
-        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    public static String getCurrentUserEmail() {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            UserContextHelper.log.warn("No authenticated user found");
+        final Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication == null
+                || !authentication.isAuthenticated()) {
+
+            UserContextHelper.log.warn(
+                    "No authenticated user found");
+
             return null;
         }
 
         final Object principal = authentication.getPrincipal();
 
-        if (principal instanceof User user) {
-            return user;
+        if (principal instanceof Jwt jwt) {
+
+            return jwt.getSubject();
         }
 
-        UserContextHelper.log.warn("Authenticated principal is not of type User: " + principal.getClass().getName());
+        if (principal instanceof User user) {
+
+            return user.getUsername();
+        }
+
+        UserContextHelper.log.warn(
+                "Unsupported principal type: {}",
+                principal.getClass().getName());
 
         return null;
     }
