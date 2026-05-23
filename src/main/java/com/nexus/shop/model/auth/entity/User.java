@@ -29,6 +29,9 @@ public class User extends AbstractEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false)
     private String password;
 
@@ -38,12 +41,19 @@ public class User extends AbstractEntity implements UserDetails {
 
     @OneToMany(mappedBy = "createdBy")
     private List<Product> createdProducts = new ArrayList<>();
-    
+
     public User() {
     }
 
     public User(String username, String password, Set<Role> roles) {
         this.username = username;
+        this.password = password;
+        this.roles = roles;
+    }
+
+    public User(String username, String email, String password, Set<Role> roles) {
+        this.username = username;
+        this.email = email;
         this.password = password;
         this.roles = roles;
     }
@@ -62,7 +72,7 @@ public class User extends AbstractEntity implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return this.email;
     }
 
     @Override
