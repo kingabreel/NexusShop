@@ -32,17 +32,17 @@ public class AuthService {
 
     public String login(final LoginRequest request) {
 
-        AuthService.log.info("Init authentication for user: {}", request.username());
+        AuthService.log.info("Init authentication for user: {}", request.email());
 
         try {
             Authentication auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            request.username(),
+                            request.email(),
                             request.password()));
 
-            AuthService.log.info("Authentication successful for user: {}", request.username());
+            AuthService.log.info("Authentication successful for user: {}", request.email());
+            
             return jwtService.generateToken((UserDetails) auth.getPrincipal());
-
         } catch (Exception e) {
             AuthService.log.error("Login failed", e);
             throw e;
@@ -51,12 +51,13 @@ public class AuthService {
 
     public void register(final RegisterRequest request) {
 
-        if (this.userRepository.findByUsername(request.username()).isPresent()) {
+        if (this.userRepository.findByEmail(request.email()).isPresent()) {
             throw new RuntimeException("User already exists");
         }
 
         final User user = new User(
                 request.username(),
+                request.email(),
                 this.passwordEncoder.encode(request.password()),
                 Set.of(Role.CLIENT));
 

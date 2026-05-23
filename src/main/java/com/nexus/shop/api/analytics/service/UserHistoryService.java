@@ -6,15 +6,18 @@ import com.nexus.shop.model.analytic.entity.UserHistory;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.persistence.repository.UserHistoryRepository;
+import com.nexus.shop.persistence.repository.UserRepository;
 import com.nexus.shop.utils.helpers.UserContextHelper;
 
 @Service
 public class UserHistoryService {
     
     private final UserHistoryRepository repository;
-    
-    public UserHistoryService(final UserHistoryRepository repository) {
+    private final UserRepository userRepository;
+
+    public UserHistoryService(final UserHistoryRepository repository, final UserRepository userRepository) {
         this.repository = repository;
+        this.userRepository = userRepository;
     }
 
     public void addProductView(final Product product, final User user) {
@@ -26,7 +29,11 @@ public class UserHistoryService {
     }
 
     public void addProductView(final Product product) {
-        final User user = UserContextHelper.getCurrentUser();
+        final String userMail = UserContextHelper.getCurrentUserEmail();
+
+        final User user = this.userRepository
+                .findByEmail(userMail)
+                .orElse(null);
 
         if (null == product || null == user) {
             return;
