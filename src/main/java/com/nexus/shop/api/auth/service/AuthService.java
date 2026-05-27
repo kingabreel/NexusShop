@@ -10,9 +10,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.nexus.shop.api.auth.service.impl.RefreshTokenService;
 import com.nexus.shop.infra.security.JwtService;
+import com.nexus.shop.model.auth.entity.RefreshToken;
 import com.nexus.shop.model.auth.entity.Role;
 import com.nexus.shop.model.auth.entity.User;
+import com.nexus.shop.model.auth.request.AuthTokens;
 import com.nexus.shop.model.auth.request.LoginRequest;
 import com.nexus.shop.model.auth.request.RegisterRequest;
 import com.nexus.shop.persistence.repository.UserRepository;
@@ -24,44 +27,71 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
-    @Lazy
-    private final AuthenticationManager authenticationManager;
+        private final UserRepository userRepository;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtService jwtService;
+        private final RefreshTokenService refreshTokenService;
+        private final CustomUserDetailsService userDetailsService;
 
-    public String login(final LoginRequest request) {
+        @Lazy
+        private final AuthenticationManager authenticationManager;
 
-        AuthService.log.info("Init authentication for user: {}", request.email());
+        public AuthTokens login(final LoginRequest request) {
 
-        try {
-            Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            request.email(),
-                            request.password()));
+                AuthService.log.info("Init authentication for user: {}", request.email());
 
-            AuthService.log.info("Authentication successful for user: {}", request.email());
-            
-            return jwtService.generateToken((UserDetails) auth.getPrincipal());
-        } catch (Exception e) {
-            AuthService.log.error("Login failed", e);
-            throw e;
+                try {
+                        final Authentication auth = this.authenticationManager
+                                        .authenticate(new UsernamePasswordAuthenticationToken(
+                                                        request.email(),
+                                                        request.password()));
+
+                        AuthService.log.info("Authentication successful for user: {}", request.email());
+
+                        final UserDetails user = (UserDetails) auth.getPrincipal();
+
+                        final String accessToken = this.jwtService.generateToken(user);
+
+                        final String refreshToken = this.refreshTokenService
+                                        .create(user.getUsername());
+
+                        return new AuthTokens(
+                                        accessToken,
+                                        refreshToken);
+
+                } catch (final Exception e) {
+
+                        AuthService.log.error("Login failed", e);
+
+                        throw e;
+                }
         }
-    }
 
-    public void register(final RegisterRequest request) {
+        public void register(final RegisterRequest request) {
 
-        if (this.userRepository.findByEmail(request.email()).isPresent()) {
-            throw new RuntimeException("User already exists");
+                if (this.userRepository
+                                .findByEmail(request.email())
+                                .isPresent()) {
+
+                        throw new RuntimeException(
+                                        "User already exists");
+                }
+
+                final User user = new User(
+                                request.username(),
+                                request.email(),
+                                this.passwordEncoder.encode(
+                                                request.password()),
+                                Set.of(Role.CLIENT));
+
+                this.userRepository.save(user);
         }
 
-        final User user = new User(
-                request.username(),
-                request.email(),
-                this.passwordEncoder.encode(request.password()),
-                Set.of(Role.CLIENT));
+        public String refresh(final String refreshToken) {
+                final RefreshToken token = this.refreshTokenService.validate(refreshToken);
 
-        this.userRepository.save(user);
-    }
+                final UserDetails user = this.userDetailsService.loadUserByUsername(token.getUsername());
 
+                return this.jwtService.generateToken(user);
+        }
 }
