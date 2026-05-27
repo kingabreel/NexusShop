@@ -3,7 +3,12 @@ package com.nexus.shop.api.auth.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.Duration;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,8 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nexus.shop.api.auth.response.AuthResponse;
 import com.nexus.shop.api.auth.service.AuthService;
+import com.nexus.shop.model.auth.request.AuthTokens;
 import com.nexus.shop.model.auth.request.LoginRequest;
 import com.nexus.shop.model.auth.request.RegisterRequest;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 @RequiredArgsConstructor
 @RestController
@@ -23,11 +31,32 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(
+            @RequestBody LoginRequest request,
+            HttpServletResponse response) {
+
         AuthController.log.info("Init login");
-        String token = this.authService.login(request);
+
+        final AuthTokens tokens = this.authService.login(request);
+
+        final ResponseCookie cookie = ResponseCookie.from(
+                "refreshToken",
+                tokens.refreshToken())
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Strict")
+                .path("/api/auth/refresh")
+                .maxAge(Duration.ofDays(7))
+                .build();
+
+        response.addHeader(
+                HttpHeaders.SET_COOKIE,
+                cookie.toString());
+
         AuthController.log.info("Login success");
-        return ResponseEntity.ok(new AuthResponse(token));
+
+        return ResponseEntity.ok(
+                new AuthResponse(tokens.accessToken()));
     }
 
     @PostMapping("/register")
@@ -36,4 +65,13 @@ public class AuthController {
         return ResponseEntity.ok("User registered successfully");
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(
+            @CookieValue("refreshToken") String refreshToken) {
+
+        final String accessToken = this.authService.refresh(refreshToken);
+
+        return ResponseEntity.ok(
+                new AuthResponse(accessToken));
+    }
 }
