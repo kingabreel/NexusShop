@@ -1,12 +1,13 @@
 package com.nexus.shop.persistence.repository;
 
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
-import com.nexus.shop.model.auth.entity.Token;
+import com.nexus.shop.model.auth.entity.RefreshToken;
 
-public interface TokenRepository extends JpaRepository<Token, UUID> {
-    Optional<Token> findByToken(String token);
+@Repository
+public interface TokenRepository extends JpaRepository<RefreshToken, String> {
+    Optional<RefreshToken> findById(String token);
 }
