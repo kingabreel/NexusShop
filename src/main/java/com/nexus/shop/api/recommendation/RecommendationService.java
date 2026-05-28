@@ -30,4 +30,18 @@ public class RecommendationService {
 
         return productRepository.findAllById(productIds);
     }
+
+    public List<Product> frequentlyBoughtTogether(final UUID productId) {
+
+        final List<UUID> productIds = this.historyRepository.findFrequentlyBoughtTogether(productId);
+
+        return this.productRepository.findAllById(productIds);
+    }
+
+    public List<Product> rankedProducts() {
+
+        final List<UUID> productIds = this.historyRepository.findRankedProducts();
+
+        return productRepository.findAllById(productIds);
+    }
 }
