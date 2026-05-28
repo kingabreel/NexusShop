@@ -21,7 +21,11 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "users")
 public class User extends AbstractEntity implements UserDetails {
@@ -32,7 +36,6 @@ public class User extends AbstractEntity implements UserDetails {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(nullable = false)
     private String password;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -41,6 +44,8 @@ public class User extends AbstractEntity implements UserDetails {
 
     @OneToMany(mappedBy = "createdBy")
     private List<Product> createdProducts = new ArrayList<>();
+
+    private AuthProvider provider;
 
     public User() {
     }
