@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
@@ -15,8 +14,7 @@ import org.springframework.stereotype.Service;
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
-import com.nexus.shop.api.analytics.service.ProductAnalyticService;
-import com.nexus.shop.api.analytics.service.UserHistoryService;
+import com.nexus.shop.api.analytics.service.ProductInteractionService;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
@@ -24,25 +22,16 @@ import com.nexus.shop.persistence.repository.ProductRepository;
 import com.nexus.shop.persistence.specification.ProductSpecification;
 import com.nexus.shop.utils.converters.ConverterUtil;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@AllArgsConstructor
 public class ProductService {
 
     private final ProductRepository repository;
-    private final ProductAnalyticService productAnalyticService;
-    private final UserHistoryService userHistoryService;
-
-    @Autowired
-    public ProductService(
-            final ProductRepository repository,
-            final ProductAnalyticService productAnalyticService,
-            final UserHistoryService userHistoryService) {
-        this.repository = repository;
-        this.productAnalyticService = productAnalyticService;
-        this.userHistoryService = userHistoryService;
-    }
+    private final ProductInteractionService interactionService;
 
     public ProductResponseDTO create(final ProductCreateDTO dto) {
         Product product = new Product(
@@ -78,16 +67,14 @@ public class ProductService {
     }
 
     public ProductResponseDTO findById(final UUID id) {
+
         final Product product = this.repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        if (null != this.productAnalyticService && null != this.userHistoryService) {
-            try {
-                this.productAnalyticService.addProductView(product);
-                this.userHistoryService.addProductView(product);
-            } catch (Exception e) {
-                ProductService.log.error("Error recording product analytic: " + e.getMessage());
-            }
+        try {
+            this.interactionService.registerView(product);
+        } catch (Exception e) {
+            log.error("Error recording product interaction: {}", e.getMessage());
         }
 
         return ConverterUtil.toDTO(product);
