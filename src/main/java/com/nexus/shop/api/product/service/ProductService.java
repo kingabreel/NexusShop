@@ -15,6 +15,7 @@ import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.api.analytics.service.ProductInteractionService;
+import com.nexus.shop.api.recommendation.RecommendationService;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
@@ -32,6 +33,7 @@ public class ProductService {
 
     private final ProductRepository repository;
     private final ProductInteractionService interactionService;
+    private final RecommendationService recommendationService;
 
     public ProductResponseDTO create(final ProductCreateDTO dto) {
         Product product = new Product(
@@ -139,5 +141,41 @@ public class ProductService {
                 dtoList,
                 pageable,
                 productPage.getTotalElements());
+    }
+
+    public List<ProductResponseDTO> peopleAlsoViewed(final UUID productId) {
+        final List<Product> products = this.recommendationService.peopleAlsoViewed(productId);
+
+        // Provisory
+        final List<ProductResponseDTO> productsDto = new ArrayList<>();
+
+        for (Product product : products) {
+            productsDto.add(ConverterUtil.toDTO(product));
+        }
+        return productsDto;
+    }
+
+    public List<ProductResponseDTO> frequentlyBoughtTogether(final UUID productId) {
+        final List<Product> products = this.recommendationService.frequentlyBoughtTogether(productId);
+
+        // Provisory
+        final List<ProductResponseDTO> productsDto = new ArrayList<>();
+
+        for (Product product : products) {
+            productsDto.add(ConverterUtil.toDTO(product));
+        }
+        return productsDto;
+    }
+
+    public List<ProductResponseDTO> rankedProducts() {
+        final List<Product> products = this.recommendationService.rankedProducts();
+
+        // Provisory
+        final List<ProductResponseDTO> productsDto = new ArrayList<>();
+
+        for (Product product : products) {
+            productsDto.add(ConverterUtil.toDTO(product));
+        }
+        return productsDto;
     }
 }

@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import com.nexus.shop.api.product.service.ProductService;
@@ -156,7 +157,7 @@ public class ProductController {
         }
     }
 
-    @GetMapping("/highlighted") 
+    @GetMapping("/highlighted")
     public ResponseEntity<ApiResponse<Page<ProductResponseDTO>>> findHighlighted(
             @RequestParam(required = false, defaultValue = "0") Integer page,
             @RequestParam(required = false, defaultValue = "10") Integer size) {
@@ -175,6 +176,57 @@ public class ProductController {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Internal error while listing highlighted products"));
+        }
+    }
+
+    @GetMapping("/also-viewed/{productId}")
+    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> peopleAlsoViewed(@PathVariable UUID productId) {
+        try {
+            final List<ProductResponseDTO> response = this.service.peopleAlsoViewed(productId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Successfully found recommended product"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Error finding recommended product"));
+        }
+    }
+
+    @GetMapping("/frequently-bought-together/{productId}")
+    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> frequentlyBoughtTogether(
+            @PathVariable UUID productId) {
+        try {
+            final List<ProductResponseDTO> response = this.service.frequentlyBoughtTogether(productId);
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Successfully found frequently bought together products"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Error finding frequently bought together products"));
+        }
+    }
+
+    @GetMapping("/ranked")
+    public ResponseEntity<ApiResponse<List<ProductResponseDTO>>> rankedProducts() {
+        try {
+            final List<ProductResponseDTO> response = this.service.rankedProducts();
+            return ResponseEntity
+                    .status(HttpStatus.OK)
+                    .body(new ApiResponse<>(response, "Successfully found ranked products"));
+        } catch (Exception e) {
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ApiResponse<>(null, "Error finding ranked products"));
         }
     }
 }
