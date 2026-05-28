@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.nexus.shop.api.auth.request.GoogleLoginRequest;
 import com.nexus.shop.api.auth.response.AuthResponse;
 import com.nexus.shop.api.auth.service.AuthService;
 import com.nexus.shop.model.auth.request.AuthTokens;
@@ -28,50 +29,75 @@ import jakarta.servlet.http.HttpServletResponse;
 @Slf4j
 public class AuthController {
 
-    private final AuthService authService;
+        private final AuthService authService;
 
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(
-            @RequestBody LoginRequest request,
-            HttpServletResponse response) {
+        @PostMapping("/login")
+        public ResponseEntity<AuthResponse> login(
+                        @RequestBody LoginRequest request,
+                        HttpServletResponse response) {
 
-        AuthController.log.info("Init login");
+                AuthController.log.info("Init login");
 
-        final AuthTokens tokens = this.authService.login(request);
+                final AuthTokens tokens = this.authService.login(request);
 
-        final ResponseCookie cookie = ResponseCookie.from(
-                "refreshToken",
-                tokens.refreshToken())
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("Strict")
-                .path("/api/auth/refresh")
-                .maxAge(Duration.ofDays(7))
-                .build();
+                final ResponseCookie cookie = ResponseCookie.from(
+                                "refreshToken",
+                                tokens.refreshToken())
+                                .httpOnly(true)
+                                .secure(false)
+                                .sameSite("Lax")
+                                .path("/api/auth/refresh")
+                                .maxAge(Duration.ofDays(7))
+                                .build();
 
-        response.addHeader(
-                HttpHeaders.SET_COOKIE,
-                cookie.toString());
+                response.addHeader(
+                                HttpHeaders.SET_COOKIE,
+                                cookie.toString());
 
-        AuthController.log.info("Login success");
+                AuthController.log.info("Login success");
 
-        return ResponseEntity.ok(
-                new AuthResponse(tokens.accessToken()));
-    }
+                return ResponseEntity.ok(
+                                new AuthResponse(tokens.accessToken()));
+        }
 
-    @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody final RegisterRequest request) {
-        this.authService.register(request);
-        return ResponseEntity.ok("User registered successfully");
-    }
+        @PostMapping("/register")
+        public ResponseEntity<String> register(@RequestBody final RegisterRequest request) {
+                this.authService.register(request);
+                return ResponseEntity.ok("User registered successfully");
+        }
 
-    @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(
-            @CookieValue("refreshToken") String refreshToken) {
+        @PostMapping("/refresh")
+        public ResponseEntity<AuthResponse> refresh(
+                        @CookieValue("refreshToken") String refreshToken) {
 
-        final String accessToken = this.authService.refresh(refreshToken);
+                final String accessToken = this.authService.refresh(refreshToken);
 
-        return ResponseEntity.ok(
-                new AuthResponse(accessToken));
-    }
+                return ResponseEntity.ok(
+                                new AuthResponse(accessToken));
+        }
+
+        @PostMapping("/google")
+        public ResponseEntity<AuthResponse> googleLogin(
+                        @RequestBody GoogleLoginRequest request,
+                        HttpServletResponse response) {
+
+                final AuthTokens tokens = this.authService.googleLogin(request.token());
+
+                final ResponseCookie cookie = ResponseCookie.from(
+                                "refreshToken",
+                                tokens.refreshToken())
+                                .httpOnly(true)
+                                .secure(false)
+                                .sameSite("Lax")
+                                .path("/api/auth/refresh")
+                                .maxAge(Duration.ofDays(7))
+                                .build();
+
+                response.addHeader(
+                                HttpHeaders.SET_COOKIE,
+                                cookie.toString());
+
+                return ResponseEntity.ok(
+                                new AuthResponse(tokens.accessToken()));
+        }
 }

@@ -10,8 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.nexus.shop.api.auth.service.impl.RefreshTokenService;
 import com.nexus.shop.infra.security.JwtService;
+import com.nexus.shop.model.auth.entity.AuthProvider;
 import com.nexus.shop.model.auth.entity.RefreshToken;
 import com.nexus.shop.model.auth.entity.Role;
 import com.nexus.shop.model.auth.entity.User;
@@ -32,6 +34,7 @@ public class AuthService {
         private final JwtService jwtService;
         private final RefreshTokenService refreshTokenService;
         private final CustomUserDetailsService userDetailsService;
+        private final GoogleTokenServiceImpl googleTokenService;
 
         @Lazy
         private final AuthenticationManager authenticationManager;
@@ -93,5 +96,41 @@ public class AuthService {
                 final UserDetails user = this.userDetailsService.loadUserByUsername(token.getUsername());
 
                 return this.jwtService.generateToken(user);
+        }
+
+        public AuthTokens googleLogin(final String googleToken) {
+
+                final GoogleIdToken.Payload payload = this.googleTokenService
+                                .verifyToken(googleToken);
+
+                final String email = payload.getEmail();
+
+                final String name = (String) payload.get("name");
+
+                // final String picture = (String) payload.get("picture");
+
+                final User user = this.userRepository
+                                .findByEmail(email)
+                                .orElseGet(() -> {
+
+                                        final User newUser = new User();
+
+                                        newUser.setEmail(email);
+
+                                        newUser.setUsername(name);
+
+                                        // newUser.setPicture(picture);
+
+                                        newUser.setProvider(AuthProvider.GOOGLE);
+
+                                        return this.userRepository.save(newUser);
+                                });
+
+                final String accessToken = this.jwtService.generateToken(user);
+                final String refreshToken = this.refreshTokenService.create(user.getEmail());
+
+                return new AuthTokens(
+                                accessToken,
+                                refreshToken);
         }
 }
