@@ -21,6 +21,8 @@ import com.nexus.shop.model.auth.request.AuthTokens;
 import com.nexus.shop.model.auth.request.LoginRequest;
 import com.nexus.shop.model.auth.request.RegisterRequest;
 import com.nexus.shop.persistence.repository.UserRepository;
+import com.nexus.shop.utils.helpers.UserContextHelper;
+import com.nimbusds.oauth2.sdk.util.StringUtils;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -133,4 +135,17 @@ public class AuthService {
                                 accessToken,
                                 refreshToken);
         }
+
+        public User getCurrentUser() {
+                final String email = UserContextHelper.getCurrentUserEmail();
+
+                if (StringUtils.isBlank(email)) {
+                        throw new RuntimeException("No user logged found");
+                }
+
+                return this.userRepository
+                                .findByEmail(email)
+                                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        }
+
 }
