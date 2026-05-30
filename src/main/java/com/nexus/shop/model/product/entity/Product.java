@@ -45,6 +45,14 @@ public class Product extends AbstractEntity {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    private Long viewCount = 0L;
+
+    private Long purchaseCount = 0L;
+
+    private Long favoriteCount = 0L;
+
+    private Long cartAddCount = 0L;
+
     public Product(
             final String name,
             final String description,

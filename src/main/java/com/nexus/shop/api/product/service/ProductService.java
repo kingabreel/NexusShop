@@ -75,6 +75,8 @@ public class ProductService {
 
         try {
             this.interactionService.registerView(product);
+            this.repository.incrementView(product.getId());
+
         } catch (Exception e) {
             log.error("Error recording product interaction: {}", e.getMessage());
         }

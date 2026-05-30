@@ -9,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -21,13 +22,14 @@ import lombok.Setter;
 @Entity
 @Table(indexes = {
         @Index(name = "idx_user_product", columnList = "user_id, product_id"),
-        @Index(name = "idx_user_viewed_at", columnList = "viewedAt")
 })
 public class UserHistory extends AbstractEntity {
 
+    @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
+    @JoinColumn(name = "product_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Product product;
 

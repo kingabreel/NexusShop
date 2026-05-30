@@ -14,14 +14,14 @@ import com.nexus.shop.model.analytic.entity.UserHistory;
 public interface UserHistoryRepository extends JpaRepository<UserHistory, UUID> {
 
     @Query("""
-                SELECT DISTINCT uh.userId
+                SELECT DISTINCT uh.user.id
                 FROM UserHistory uh
-                WHERE uh.productId = :productId
+                WHERE uh.product.id = :productId
                   AND uh.type = 'VIEW'
             """)
     List<UUID> findUsersWhoViewed(@Param("productId") UUID productId);
 
-    @Query("""
+    @Query(value = """
                 SELECT product_id, COUNT(*) as score
                 FROM user_history
                 WHERE user_id IN (:users)
@@ -29,11 +29,11 @@ public interface UserHistoryRepository extends JpaRepository<UserHistory, UUID> 
                 AND type = 'VIEW'
                 GROUP BY product_id
                 ORDER BY score DESC
-                LIMIT 10;
-            """)
+                LIMIT 10
+            """, nativeQuery = true)
     List<UUID> findProductsViewedByUsers(@Param("users") List<UUID> userIds, @Param("productId") UUID excludeProductId);
 
-    @Query("""
+    @Query(value = """
                 SELECT product_id, COUNT(*) as score
                 FROM user_history
                 WHERE product_id != :productId
@@ -47,16 +47,16 @@ public interface UserHistoryRepository extends JpaRepository<UserHistory, UUID> 
                 GROUP BY product_id
                 ORDER BY score DESC
                 LIMIT 10;
-            """)
+            """, nativeQuery = true)
     List<UUID> findFrequentlyBoughtTogether(@Param("productId") UUID productId);
 
-    @Query("""
+    @Query(value = """
                 SELECT product_id, COUNT(*) as score
                 FROM user_history
                 WHERE type = 'PURCHASE'
                 GROUP BY product_id
                 ORDER BY score DESC
                 LIMIT 10;
-            """)
+            """, nativeQuery = true)
     List<UUID> findRankedProducts();
 }

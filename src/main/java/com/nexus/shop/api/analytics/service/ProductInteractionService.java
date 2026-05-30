@@ -8,7 +8,6 @@ import com.nexus.shop.model.analytic.entity.InteractionType;
 import com.nexus.shop.model.analytic.entity.UserHistory;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.entity.Product;
-import com.nexus.shop.persistence.repository.ProductAnalyticRepository;
 import com.nexus.shop.persistence.repository.UserHistoryRepository;
 import com.nexus.shop.persistence.repository.UserRepository;
 import com.nexus.shop.utils.helpers.UserContextHelper;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ProductInteractionService {
 
     private final UserHistoryRepository userHistoryRepository;
-    private final ProductAnalyticRepository productAnalyticRepository;
     private final UserRepository userRepository;
 
     public void registerView(final Product product) {
@@ -34,7 +32,6 @@ public class ProductInteractionService {
             return;
 
         this.saveHistory(product, user, InteractionType.VIEW);
-        this.productAnalyticRepository.incrementView(product.getId());
     }
 
     public void registerClick(final Product product) {
