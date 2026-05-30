@@ -9,6 +9,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nexus.shop.api.auth.request.GoogleLoginRequest;
 import com.nexus.shop.api.auth.response.AuthResponse;
 import com.nexus.shop.api.auth.service.AuthService;
+import com.nexus.shop.model.ApiResponse;
+import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.auth.request.AuthTokens;
 import com.nexus.shop.model.auth.request.LoginRequest;
 import com.nexus.shop.model.auth.request.RegisterRequest;
@@ -99,5 +102,13 @@ public class AuthController {
 
                 return ResponseEntity.ok(
                                 new AuthResponse(tokens.accessToken()));
+        }
+
+        @GetMapping("/me")
+        public ResponseEntity<ApiResponse<User>> getCurrentUser() {
+                final User user = this.authService.getCurrentUser();
+                final ApiResponse<User> apiResponse = new ApiResponse<>();
+                apiResponse.setData(user);
+                return ResponseEntity.ok(apiResponse);
         }
 }

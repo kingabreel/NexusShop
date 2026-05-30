@@ -10,6 +10,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexus.shop.model.AbstractEntity;
 import com.nexus.shop.model.product.entity.Product;
 
@@ -42,6 +43,7 @@ public class User extends AbstractEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "createdBy")
     private List<Product> createdProducts = new ArrayList<>();
 
