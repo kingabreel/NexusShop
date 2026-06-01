@@ -1,9 +1,17 @@
 package com.nexus.shop.utils.converters;
+
 import com.nexus.shop.model.product.response.ProductResponseDTO;
+
+import java.util.List;
+
+import com.nexus.shop.model.cart.entity.Cart;
+import com.nexus.shop.model.cart.entity.CartItem;
+import com.nexus.shop.model.cart.response.CartItemResponseDTO;
+import com.nexus.shop.model.cart.response.CartResponseDTO;
 import com.nexus.shop.model.product.entity.Product;
 
 public final class ConverterUtil {
-    
+
     private ConverterUtil() {
         throw new UnsupportedOperationException("Utility class");
     }
@@ -16,7 +24,29 @@ public final class ConverterUtil {
                 product.getPrice(),
                 product.getStock(),
                 product.getCategory(),
-                product.isHighlight()
-        );
+                product.isHighlight());
+    }
+
+    public static CartItemResponseDTO toDTO(CartItem item) {
+        return new CartItemResponseDTO(
+                item.getCart().getId(),
+                item.getProduct().getId(),
+                item.getProduct().getName(),
+                item.getQuantity(),
+                item.getPriceAtTime(),
+                item.getTotal());
+    }
+
+    public static CartResponseDTO toDTO(Cart cart) {
+        List<CartItemResponseDTO> items = cart.getItems().stream()
+                .map(ConverterUtil::toDTO)
+                .toList();
+
+        return new CartResponseDTO(
+                cart.getId(),
+                items,
+                cart.getSubtotal(),
+                cart.getDiscount(),
+                cart.getTotal());
     }
 }
