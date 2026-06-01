@@ -14,16 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nexus.shop.api.cart.service.CartService;
 import com.nexus.shop.model.ApiResponse;
-import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.cart.entity.Cart;
 import com.nexus.shop.model.cart.entity.CartItem;
 import com.nexus.shop.model.cart.request.CartItemCreateDTO;
 import com.nexus.shop.model.cart.request.CartItemUpdateDTO;
 import com.nexus.shop.model.cart.response.CartItemResponseDTO;
 import com.nexus.shop.model.cart.response.CartResponseDTO;
-import com.nexus.shop.persistence.repository.UserRepository;
 import com.nexus.shop.utils.converters.ConverterUtil;
-import com.nexus.shop.utils.helpers.UserContextHelper;
 
 import org.springframework.web.bind.annotation.RequestBody;
 import jakarta.validation.Valid;
@@ -33,46 +30,37 @@ import jakarta.validation.Valid;
 public class CartController {
 
     private final CartService cartService;
-    private final UserRepository userRepository;
 
-    public CartController(CartService cartService, UserRepository userRepository) {
+    public CartController(CartService cartService) {
         this.cartService = cartService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping("/items")
     public ResponseEntity<ApiResponse<CartItemResponseDTO>> createCartItem(
             @RequestBody @Valid CartItemCreateDTO dto) {
-
         try {
-            String email = UserContextHelper.getCurrentUserEmail();
-            if (email == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not authenticated"));
-            }
-            User user = userRepository.findByEmail(email)
-                    .orElse(null);
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not found"));
-            }
-
-            Cart cart = cartService.addCartItem(user.getId(), dto.productId(), dto.quantity());
+            Cart cart = cartService.addCartItem(dto.productId(), dto.quantity());
 
             CartItem item = cart.getItems().stream()
                     .filter(i -> i.getProduct().getId().equals(dto.productId()))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("Item not found after adding"));
 
-            CartItemResponseDTO response = ConverterUtil.toDTO(item);
-
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(response, "Item added to cart"));
+                    .body(new ApiResponse<>(ConverterUtil.toDTO(item), "Item added to cart"));
 
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(null, e.getMessage()));
-
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null &&
+                    (e.getMessage().equals("User not authenticated") ||
+                            e.getMessage().equals("User not found"))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse<>(null, e.getMessage()));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Internal error"));
@@ -82,25 +70,22 @@ public class CartController {
     @GetMapping
     public ResponseEntity<ApiResponse<CartResponseDTO>> getCart() {
         try {
-            String email = UserContextHelper.getCurrentUserEmail();
-            if (email == null) {
+            Cart cart = cartService.getOrCreateCart();
+            return ResponseEntity.ok(new ApiResponse<>(ConverterUtil.toDTO(cart), "Cart retrieved successfully"));
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null &&
+                    (e.getMessage().equals("User not authenticated") ||
+                            e.getMessage().equals("User not found"))) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not authenticated"));
+                        .body(new ApiResponse<>(null, e.getMessage()));
             }
-            User user = userRepository.findByEmail(email)
-                    .orElse(null);
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not found"));
-            }
-
-            Cart cart = cartService.getOrCreateCart(user.getId());
-            CartResponseDTO response = ConverterUtil.toDTO(cart);
-
-            return ResponseEntity.ok(new ApiResponse<>(response, "Cart retrieved successfully"));
-
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Internal error"));
         }
@@ -111,20 +96,7 @@ public class CartController {
             @PathVariable UUID productId,
             @RequestBody @Valid CartItemUpdateDTO dto) {
         try {
-            String email = UserContextHelper.getCurrentUserEmail();
-            if (email == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not authenticated"));
-            }
-            User user = userRepository.findByEmail(email)
-                    .orElse(null);
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not found"));
-            }
-
-            Cart cart = cartService.getOrCreateCart(user.getId());
-            Cart updated = cartService.updateCartItem(cart.getId(), productId, dto.quantity());
+            Cart updated = cartService.updateCartItem(productId, dto.quantity());
 
             CartItem item = updated.getItems().stream()
                     .filter(i -> i.getProduct().getId().equals(productId))
@@ -136,8 +108,16 @@ public class CartController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null &&
+                    (e.getMessage().equals("User not authenticated") ||
+                            e.getMessage().equals("User not found"))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse<>(null, e.getMessage()));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Internal error"));
         }
@@ -146,25 +126,22 @@ public class CartController {
     @DeleteMapping("/items/{productId}")
     public ResponseEntity<ApiResponse<Void>> deleteCartItem(@PathVariable UUID productId) {
         try {
-            String email = UserContextHelper.getCurrentUserEmail();
-            if (email == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not authenticated"));
-            }
-            User user = userRepository.findByEmail(email)
-                    .orElse(null);
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not found"));
-            }
-
-            Cart cart = cartService.getOrCreateCart(user.getId());
-            cartService.deleteCartItem(cart.getId(), productId);
-
+            cartService.deleteCartItem(productId);
             return ResponseEntity.ok(new ApiResponse<>(null, "Item removed"));
 
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null &&
+                    (e.getMessage().equals("User not authenticated") ||
+                            e.getMessage().equals("User not found"))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse<>(null, e.getMessage()));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Internal error"));
         }
@@ -173,28 +150,24 @@ public class CartController {
     @DeleteMapping
     public ResponseEntity<ApiResponse<Void>> deleteCart() {
         try {
-            String email = UserContextHelper.getCurrentUserEmail();
-            if (email == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not authenticated"));
-            }
-            User user = userRepository.findByEmail(email)
-                    .orElse(null);
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body(new ApiResponse<>(null, "User not found"));
-            }
-
-            Cart cart = cartService.getOrCreateCart(user.getId());
-            cartService.deleteCart(cart.getId(), user.getId());
-
+            cartService.deleteCart();
             return ResponseEntity.ok(new ApiResponse<>(null, "Cart deleted"));
 
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
+        } catch (RuntimeException e) {
+            if (e.getMessage() != null &&
+                    (e.getMessage().equals("User not authenticated") ||
+                            e.getMessage().equals("User not found"))) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(new ApiResponse<>(null, e.getMessage()));
+            }
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(null, e.getMessage()));
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Internal error"));
         }
     }
-
 }
