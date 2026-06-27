@@ -7,12 +7,17 @@ services:
       POSTGRES_DB: ${DB_NAME:-nexusshop}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_SHARED_BUFFERS: 128MB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 256MB
+      POSTGRES_WORK_MEM: 8MB
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - nexusshop-network
+    mem_limit: 512m
+    cpus: 0.5
 
   app:
     build: .
@@ -38,25 +43,17 @@ services:
       MINIO_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
       MINIO_BUCKET: ratings
 
+      JAVA_TOOL_OPTIONS: >-
+        -Xms128m
+        -Xmx512m
+        -XX:+UseSerialGC
+        -XX:MaxRAMPercentage=75
+        -Dfile.encoding=UTF-8
+
     restart: always
     networks:
       - nexusshop-network
   
-  minio:
-      image: minio/minio
-      container_name: nexusshop-minio
-      ports:
-        - "9000:9000"
-        - "9001:9001"
-      environment:
-        MINIO_ROOT_USER: ${MINIO_USER:-minioadmin}
-        MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
-      command: server /data --console-address ":9001"
-      volumes:
-        - minio_data:/data
-      networks:
-        - nexusshop-network
-
 volumes:
   postgres_data:
   minio_data:

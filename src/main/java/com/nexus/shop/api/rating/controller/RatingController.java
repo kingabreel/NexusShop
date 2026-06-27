@@ -110,4 +110,26 @@ public class RatingController {
         }
     }
 
+    // TODO: Apenas pra ajudar a testar, deve ser removido
+    @PostMapping("/upload")
+    public ResponseEntity<String> upload(@RequestBody ImageUploadRequest request) {
+
+        String filename = request.getFilename();
+
+        if (filename == null || filename.isBlank()) {
+            filename = UUID.randomUUID() + ".jpg";
+        }
+
+        String url = service.saveImage(filename, request.getBase64());
+
+        return ResponseEntity.ok(url);
+    }
+
+    // TODO: Remover :)
+    @GetMapping("/download/{filename}")
+    public ResponseEntity<byte[]> download(@PathVariable String filename) {
+        byte[] fileContent = service.downloadFile(filename);
+        return ResponseEntity.ok().body(fileContent);
+    }
+
 }
