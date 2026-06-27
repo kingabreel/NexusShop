@@ -1,6 +1,8 @@
 package com.nexus.shop.utils.converters;
 
 import com.nexus.shop.model.product.response.ProductResponseDTO;
+import com.nexus.shop.model.rating.entity.Rating;
+import com.nexus.shop.model.rating.response.RatingResponseDTO;
 
 import java.util.List;
 
@@ -48,5 +50,17 @@ public final class ConverterUtil {
                 cart.getSubtotal(),
                 cart.getDiscount(),
                 cart.getTotal());
+    }
+
+    public static RatingResponseDTO toDTO(Rating rating) {
+        String name = rating.isAnonymous() ? null : rating.getUser().getUsername();
+        return new RatingResponseDTO(
+            rating.getId(),
+            rating.getRating(),
+            rating.getComment(),
+            rating.getProduct().getId(),
+            name,
+            rating.isAnonymous()
+        );
     }
 }
