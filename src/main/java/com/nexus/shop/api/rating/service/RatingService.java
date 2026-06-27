@@ -40,6 +40,10 @@ public class RatingService {
         this.productRepository = productRepository;
         this.ratingRepository = ratingRepository;
         this.authenticatedUserHelper = authenticatedUserHelper;
+
+        if (this.cdnService == null) {
+            this.initCdn();
+        }
     }
 
     public RatingResponseDTO create(RatingCreateDTO dto) {
@@ -137,7 +141,7 @@ public class RatingService {
         }
     }
 
-    // TODO: Remover ou trocar para private 
+    // TODO: Remover ou trocar para private
     // Imagem já deve ser retornada no objeto response para requests de ratings :)
     public byte[] downloadFile(String filename) {
         return this.cdnService.downloadFile(filename);
