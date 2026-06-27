@@ -8,6 +8,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,6 +21,8 @@ import lombok.Setter;
 @Setter
 public class Rating extends AbstractEntity {
     @Column(nullable = false)
+    @Min(1)
+    @Max(5)
     Double rating;
 
     String comment;
@@ -31,12 +35,15 @@ public class Rating extends AbstractEntity {
     @ManyToOne
     Product product;
 
-    public Rating(Double rating, String comment, boolean anonymous, User user, Product product) {
+    String imageUrl;
+
+    public Rating(Double rating, String comment, boolean anonymous, User user, Product product, String imageUrl) {
         this.rating = rating;
         this.comment = comment;
         this.anonymous = anonymous;
         this.user = user;
         this.product = product;
+        this.imageUrl = imageUrl;
     }
 
 }

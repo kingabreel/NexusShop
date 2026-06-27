@@ -52,7 +52,7 @@ public class RatingController {
         }
     }
 
-    @GetMapping // pegar por id do produto
+    @GetMapping 
     public ResponseEntity<ApiResponse<List<RatingResponseDTO>>> findByIdProduct(@RequestParam final UUID productId) {
         try {
             final List<RatingResponseDTO> response = service.findByProduct(productId);
@@ -73,7 +73,7 @@ public class RatingController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<RatingResponseDTO>> update(@PathVariable UUID id,
-            @RequestBody RatingUpdatePartialDTO dto) {
+            @RequestBody @Valid RatingUpdatePartialDTO dto) {
         try {
             final RatingResponseDTO response = service.updatePartial(id, dto);
 
@@ -108,28 +108,6 @@ public class RatingController {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ApiResponse<>(null, "Error deleting rating"));
         }
-    }
-
-    // TODO: Apenas pra ajudar a testar, deve ser removido
-    @PostMapping("/upload")
-    public ResponseEntity<String> upload(@RequestBody ImageUploadRequest request) {
-
-        String filename = request.getFilename();
-
-        if (filename == null || filename.isBlank()) {
-            filename = UUID.randomUUID() + ".jpg";
-        }
-
-        String url = service.saveImage(filename, request.getBase64());
-
-        return ResponseEntity.ok(url);
-    }
-
-    // TODO: Remover :)
-    @GetMapping("/download/{filename}")
-    public ResponseEntity<byte[]> download(@PathVariable String filename) {
-        byte[] fileContent = service.downloadFile(filename);
-        return ResponseEntity.ok().body(fileContent);
     }
 
 }

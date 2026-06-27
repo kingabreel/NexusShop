@@ -8,5 +8,6 @@ public record RatingResponseDTO(
         String comment,
         UUID productId,
         String userName,
-        boolean anonymous) {
+        boolean anonymous,
+        String imageUrl) {
 }

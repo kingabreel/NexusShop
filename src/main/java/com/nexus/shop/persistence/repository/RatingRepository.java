@@ -12,4 +12,6 @@ import com.nexus.shop.model.rating.entity.Rating;
 public interface RatingRepository extends JpaRepository<Rating, UUID> {
     
     List<Rating> findByProduct(Product product);
+
+    boolean existsByProductIdAndUserId(UUID productId, UUID userId);
 }

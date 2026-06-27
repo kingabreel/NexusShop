@@ -24,6 +24,7 @@ services:
     container_name: nexusshop-api
     depends_on:
       - db
+      - minio
     ports:
       - "${APP_PORT:-8080}:8080"
     environment:
@@ -51,6 +52,22 @@ services:
         -Dfile.encoding=UTF-8
 
     restart: always
+    networks:
+      - nexusshop-network
+
+  minio:
+    image: minio/minio
+    container_name: nexusshop-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console web
+    volumes:
+      - minio_data:/data
     networks:
       - nexusshop-network
   

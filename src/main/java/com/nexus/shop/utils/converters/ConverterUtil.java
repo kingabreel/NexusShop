@@ -60,7 +60,8 @@ public final class ConverterUtil {
             rating.getComment(),
             rating.getProduct().getId(),
             name,
-            rating.isAnonymous()
+            rating.isAnonymous(),
+            rating.getImageUrl()
         );
     }
 }
