@@ -3,13 +3,12 @@ package com.nexus.shop.model.rating.entity;
 import com.nexus.shop.model.AbstractEntity;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.entity.Product;
+import com.nexus.shop.model.rating.validation.ValidRating;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,8 +20,7 @@ import lombok.Setter;
 @Setter
 public class Rating extends AbstractEntity {
     @Column(nullable = false)
-    @Min(1)
-    @Max(5)
+    @ValidRating
     Double rating;
 
     String comment;

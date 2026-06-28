@@ -1,12 +1,10 @@
 package com.nexus.shop.model.rating.dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
+import com.nexus.shop.model.rating.validation.ValidRating;
 
 public record RatingUpdatePartialDTO(
         
-        @Min(1)
-        @Max(5)
+        @ValidRating
         Double rating,
         
         String comment,
