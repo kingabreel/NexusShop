@@ -62,11 +62,16 @@ public class ProductService {
 
         final String genEmbeddingTxt = this.generateTextEmbedding(product);
 
-        final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
 
-        product.setEmbedding(embedding);
+        try {
+            final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
+            if (embedding != null) {
+                product.setEmbedding(embedding);
+            }
+        } catch (final Exception e) {
+            ProductService.log.error("Error while calling API: "  + e.getMessage());
+        }
 
-        ProductService.log.info(embedding.toString());
 
         Product saved = this.repository.save(product);
 
