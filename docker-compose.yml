@@ -31,6 +31,8 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${JPA_DDL_AUTO:-none}
       SPRING_JPA_SHOW_SQL: ${JPA_SHOW_SQL:-true}
 
+      COHERE_API_KEY: ${COHERE_API_KEY:-default_cohere_api_key}
+
       JWT_SECRET: ${JWT_SECRET:-default_secret_key}
 
     restart: always
