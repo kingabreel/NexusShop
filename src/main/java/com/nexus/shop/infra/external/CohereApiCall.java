@@ -2,11 +2,11 @@ package com.nexus.shop.infra.external;
 
 import java.io.IOException;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.net.URI;
@@ -24,7 +24,7 @@ public class CohereApiCall {
 
     private final HttpClient httpClient;
 
-    @Value("${cohere.api.key}")
+    @Setter
     private String apiKey;
 
     public CohereApiCall() {

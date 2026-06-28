@@ -8,6 +8,10 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.Array;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import com.nexus.shop.model.AbstractEntity;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.enums.Category;
@@ -45,8 +49,10 @@ public class Product extends AbstractEntity {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
-    @Column(columnDefinition = "vector(1536)")
-    private String embedding;
+    @JdbcTypeCode(SqlTypes.VECTOR)
+    @Array(length = 1536)
+    @Column(name = "embedding")
+    private float[] embedding;
 
     public Product(
             final String name,

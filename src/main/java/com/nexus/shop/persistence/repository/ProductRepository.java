@@ -17,9 +17,11 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
     Page<Product> findByHighlight(boolean highlight, Pageable pageable);
 
     @Query(value = """
-    SELECT * FROM product
-    ORDER BY embedding <-> CAST(:embedding AS vector)
-    LIMIT 10
-    """, nativeQuery = true)
-    List<Product> searchSimilar(@Param("embedding") final String embedding);
+            SELECT *
+            FROM product
+            ORDER BY embedding <-> :embedding
+            LIMIT :limit
+            """, nativeQuery = true)
+    List<Product> searchSimilar(@Param("embedding") float[] embedding,
+            @Param("limit") int limit);
 }

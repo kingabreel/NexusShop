@@ -2,6 +2,7 @@ package com.nexus.shop.api.product.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,12 +12,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.api.analytics.service.ProductAnalyticService;
 import com.nexus.shop.api.analytics.service.UserHistoryService;
+import com.nexus.shop.infra.external.CohereApiCall;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
@@ -44,8 +47,11 @@ public class ProductService {
         this.userHistoryService = userHistoryService;
     }
 
+    @Value("${cohere.api.key}")
+    private String apiKey;
+
     public ProductResponseDTO create(final ProductCreateDTO dto) {
-        Product product = new Product(
+        final Product product = new Product(
                 dto.name(),
                 dto.description(),
                 dto.price(),
@@ -53,6 +59,14 @@ public class ProductService {
                 dto.category(),
                 new ArrayList<>(),
                 false);
+
+        final String genEmbeddingTxt = this.generateTextEmbedding(product);
+
+        final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
+
+        product.setEmbedding(embedding);
+
+        ProductService.log.info(embedding.toString());
 
         Product saved = this.repository.save(product);
 
@@ -152,5 +166,37 @@ public class ProductService {
                 dtoList,
                 pageable,
                 productPage.getTotalElements());
+    }
+
+    private String generateTextEmbedding(final Product product) {
+        final StringBuilder sb = new StringBuilder(255);
+
+        sb.append(product.getName())
+            .append(" ")
+            .append(product.getDescription())
+            .append(" ");
+        
+        // producto não é criado com tags ainda :)
+
+        // boolean firstTag = true;
+
+        // for (final Tag tag : product.getTags()) {
+        //     if (firstTag) {
+        //         firstTag = false;
+        //     } else {
+        //         sb.append(",");
+        //     }
+
+        //     sb.append(tag.name().toLowerCase());
+        // }
+
+        return sb.toString();
+    }
+    
+    private float[] generateEmbeddings(final String text) {
+        final CohereApiCall embeddingApi = new CohereApiCall();
+        embeddingApi.setApiKey(apiKey);
+        
+        return embeddingApi.generateEmbeddings(Arrays.asList(text)).getFirst();
     }
 }
