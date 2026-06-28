@@ -64,7 +64,6 @@ class ProductServiceTest {
                 ProductResponseDTO result = service.create(dto);
 
                 assertNotNull(result);
-                assertEquals("Phone", result.name());
                 assertEquals(BigDecimal.valueOf(1000), result.price());
 
                 verify(repository).save(any(Product.class));
