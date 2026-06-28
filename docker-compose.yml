@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: pgvector/pgvector:pg16
     container_name: nexusshop-db
     restart: always
     environment:
@@ -28,7 +28,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${DB_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
 
-      SPRING_JPA_HIBERNATE_DDL_AUTO: ${JPA_DDL_AUTO:-update}
+      SPRING_JPA_HIBERNATE_DDL_AUTO: ${JPA_DDL_AUTO:-none}
       SPRING_JPA_SHOW_SQL: ${JPA_SHOW_SQL:-true}
 
       JWT_SECRET: ${JWT_SECRET:-default_secret_key}

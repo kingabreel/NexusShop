@@ -45,6 +45,9 @@ public class Product extends AbstractEntity {
     @JoinColumn(name = "created_by")
     private User createdBy;
 
+    @Column(columnDefinition = "vector(1536)")
+    private String embedding;
+
     public Product(
             final String name,
             final String description,
