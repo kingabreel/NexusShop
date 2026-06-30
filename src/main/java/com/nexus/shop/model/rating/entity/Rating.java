@@ -14,26 +14,26 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "Ratings")
+@Table(name = "ratings")
 @NoArgsConstructor
 @Getter
 @Setter
 public class Rating extends AbstractEntity {
     @Column(nullable = false)
     @ValidRating
-    Double rating;
+    private Double rating;
 
-    String comment;
+    private String comment;
 
-    boolean anonymous = false;
-
-    @ManyToOne
-    User user;
+    private boolean anonymous = false;
 
     @ManyToOne
-    Product product;
+    private User user;
 
-    String imageUrl;
+    @ManyToOne
+    private Product product;
+
+    private String imageUrl;
 
     public Rating(Double rating, String comment, boolean anonymous, User user, Product product, String imageUrl) {
         this.rating = rating;

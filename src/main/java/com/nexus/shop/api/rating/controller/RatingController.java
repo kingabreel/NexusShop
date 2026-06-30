@@ -52,7 +52,7 @@ public class RatingController {
         }
     }
 
-    @GetMapping 
+    @GetMapping("/{id]")
     public ResponseEntity<ApiResponse<List<RatingResponseDTO>>> findByIdProduct(@RequestParam final UUID productId) {
         try {
             final List<RatingResponseDTO> response = service.findByProduct(productId);
