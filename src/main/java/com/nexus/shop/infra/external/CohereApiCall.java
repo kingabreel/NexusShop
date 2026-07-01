@@ -35,7 +35,7 @@ public class CohereApiCall {
         try {
             final JSONObject payload = new JSONObject();
             payload.put("model", "embed-v4.0");
-            payload.put("texts", texts);
+            payload.put("texts", new JSONArray(texts));
             payload.put("input_type", "search_document");
 
             final HttpRequest request = HttpRequest.newBuilder()

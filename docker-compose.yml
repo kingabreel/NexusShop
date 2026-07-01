@@ -7,18 +7,24 @@ services:
       POSTGRES_DB: ${DB_NAME:-nexusshop}
       POSTGRES_USER: ${DB_USER:-postgres}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_SHARED_BUFFERS: 128MB
+      POSTGRES_EFFECTIVE_CACHE_SIZE: 256MB
+      POSTGRES_WORK_MEM: 8MB
     ports:
       - "${DB_PORT:-5432}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - nexusshop-network
+    mem_limit: 512m
+    cpus: 0.5
 
   app:
     build: .
     container_name: nexusshop-api
     depends_on:
       - db
+      - minio
     ports:
       - "${APP_PORT:-8080}:8080"
     environment:
@@ -35,12 +41,41 @@ services:
 
       JWT_SECRET: ${JWT_SECRET:-default_secret_key}
 
+      MINIO_URL: http://minio:9000
+      MINIO_USER: ${MINIO_USER:-minioadmin}
+      MINIO_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
+      MINIO_BUCKET: ratings
+
+      JAVA_TOOL_OPTIONS: >-
+        -Xms128m
+        -Xmx512m
+        -XX:+UseSerialGC
+        -XX:MaxRAMPercentage=75
+        -Dfile.encoding=UTF-8
+
     restart: always
     networks:
       - nexusshop-network
 
+  minio:
+    image: minio/minio
+    container_name: nexusshop-minio
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_PASSWORD:-minioadmin}
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console web
+    volumes:
+      - minio_data:/data
+    networks:
+      - nexusshop-network
+  
 volumes:
   postgres_data:
+  minio_data:
 
 networks:
   nexusshop-network:
