@@ -1,4 +1,5 @@
 package com.nexus.shop.persistence.repository;
+
 import java.util.List;
 import java.util.UUID;
 
