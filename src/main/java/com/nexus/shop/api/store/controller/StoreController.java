@@ -1,5 +1,6 @@
 package com.nexus.shop.api.store.controller;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.nexus.shop.api.store.service.StoreService;
 import com.nexus.shop.model.ApiResponse;
+import com.nexus.shop.model.store.dto.StoreDto;
+import com.nexus.shop.model.store.request.StoreCreateDTO;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
@@ -25,10 +28,10 @@ public class StoreController {
     private final StoreService service;
     
     @PostMapping
-    public ResponseEntity<ApiResponse<Object>> create(@RequestBody @Valid Object dto) {
+    public ResponseEntity<ApiResponse<StoreDto>> create(@RequestBody @Valid final StoreCreateDTO dto) {
 
         try {
-            final Object response = service.create(dto);
+            final StoreDto response = service.create(dto);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(new ApiResponse<>(response, "Successfully created rating"));
         } catch (IllegalArgumentException e) {
@@ -44,7 +47,7 @@ public class StoreController {
     }
 
     @PostMapping("/revoke/{id}")
-    public ResponseEntity<ApiResponse<Object>> delete(@PathVariable final UUID id) {
+    public ResponseEntity<ApiResponse<StoreDto>> delete(@PathVariable final UUID id) {
 
         try {
             service.delete(id);
@@ -64,10 +67,10 @@ public class StoreController {
 
 
     @GetMapping("/find/{id}")
-    public ResponseEntity<ApiResponse<Object>> findById(@PathVariable final UUID id) {
+    public ResponseEntity<ApiResponse<StoreDto>> findById(@PathVariable final UUID id) {
 
         try {
-            final Object response = service.findById(id);
+            final StoreDto response = service.findById(id);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponse<>(response, "Successfully found store"));
         } catch (IllegalArgumentException e) {
@@ -83,10 +86,10 @@ public class StoreController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Object>> findAll() {
+    public ResponseEntity<ApiResponse<List<StoreDto>>> findAll() {
 
         try {
-            final Object response = service.getAll();
+            final List<StoreDto> response = service.getAll();
             return ResponseEntity.status(HttpStatus.OK)
                     .body(new ApiResponse<>(response, "Successfully found all stores"));
         } catch (IllegalArgumentException e) {

@@ -3,6 +3,8 @@ package com.nexus.shop.utils.converters;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.model.rating.entity.Rating;
 import com.nexus.shop.model.rating.response.RatingResponseDTO;
+import com.nexus.shop.model.store.dto.StoreDto;
+import com.nexus.shop.model.store.entity.Store;
 
 import java.util.List;
 
@@ -62,6 +64,17 @@ public final class ConverterUtil {
             name,
             rating.isAnonymous(),
             rating.getImageUrl()
+        );
+    }
+
+    public static StoreDto toDTO(final Store store) {
+        return new StoreDto(
+            store.getId(),
+            store.getName(),
+            store.getEmail(),
+            store.getPhone(),
+            store.getOwner().getUsername(),
+            store.getCreatedAt().toString()
         );
     }
 }
