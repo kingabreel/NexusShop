@@ -12,5 +12,7 @@ public record ProductResponseDTO(
                 BigDecimal price,
                 Integer stock,
                 Category category,
-                Boolean isHighlighted) {
+                Boolean isHighlighted,
+                Double averageRating,
+                Long ratingCount) {
 }
