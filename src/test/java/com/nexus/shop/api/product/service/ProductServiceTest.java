@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,6 +24,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
+import com.nexus.shop.api.rating.service.RatingService;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.model.product.entity.Product;
@@ -36,6 +38,9 @@ class ProductServiceTest {
 
         @Mock
         private ProductRepository repository;
+
+        @Mock
+        private RatingService ratingService;
 
         @InjectMocks
         private ProductService service;
@@ -203,5 +208,11 @@ class ProductServiceTest {
 
                 assertEquals(1, result.getTotalElements());
                 assertEquals("Phone", result.getContent().get(0).name());
+        }
+
+        @BeforeEach
+        void setUp() {
+                when(ratingService.getAverageRating(any(UUID.class))).thenReturn(4.5);
+                when(ratingService.getRatingCount(any(UUID.class))).thenReturn(10L);
         }
 }
