@@ -20,7 +20,11 @@ public final class ConverterUtil {
         throw new UnsupportedOperationException("Utility class");
     }
 
-    public static ProductResponseDTO toDTO(Product product) {
+    public static ProductResponseDTO toDTO(
+            Product product,
+            Double averageRating,
+            Long ratingCount) {
+
         return new ProductResponseDTO(
                 product.getId(),
                 product.getName(),
@@ -28,7 +32,9 @@ public final class ConverterUtil {
                 product.getPrice(),
                 product.getStock(),
                 product.getCategory(),
-                product.isHighlight());
+                product.isHighlight(),
+                averageRating,
+                ratingCount);
     }
 
     public static CartItemResponseDTO toDTO(CartItem item) {
@@ -57,14 +63,13 @@ public final class ConverterUtil {
     public static RatingResponseDTO toDTO(Rating rating) {
         String name = rating.isAnonymous() ? null : rating.getUser().getUsername();
         return new RatingResponseDTO(
-            rating.getId(),
-            rating.getRating(),
-            rating.getComment(),
-            rating.getProduct().getId(),
-            name,
-            rating.isAnonymous(),
-            rating.getImageUrl()
-        );
+                rating.getId(),
+                rating.getRating(),
+                rating.getComment(),
+                rating.getProduct().getId(),
+                name,
+                rating.isAnonymous(),
+                rating.getImageUrl());
     }
 
     public static StoreDto toDTO(final Store store) {

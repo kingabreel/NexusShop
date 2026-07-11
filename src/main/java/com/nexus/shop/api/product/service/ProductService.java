@@ -19,6 +19,7 @@ import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.api.analytics.service.ProductAnalyticService;
 import com.nexus.shop.api.analytics.service.UserHistoryService;
+import com.nexus.shop.api.rating.service.RatingService;
 import com.nexus.shop.infra.external.CohereApiCall;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
@@ -39,6 +40,7 @@ public class ProductService {
     private final ProductRepository repository;
     private final ProductAnalyticService productAnalyticService;
     private final UserHistoryService userHistoryService;
+    private final RatingService ratingService;
     private final UserRepository userRepository;
     
     @Autowired
@@ -46,10 +48,12 @@ public class ProductService {
             final ProductRepository repository,
             final ProductAnalyticService productAnalyticService,
             final UserHistoryService userHistoryService,
+            final RatingService ratingService,
             final UserRepository userRepository) {
         this.repository = repository;
         this.productAnalyticService = productAnalyticService;
         this.userHistoryService = userHistoryService;
+        this.ratingService = ratingService;
         this.userRepository = userRepository;
     }
 
@@ -85,12 +89,12 @@ public class ProductService {
                 product.setEmbedding(embedding);
             }
         } catch (final Exception e) {
-            ProductService.log.error("Error while calling API: "  + e.getMessage());
+            ProductService.log.error("Error while calling API: " + e.getMessage());
         }
 
         Product saved = this.repository.save(product);
 
-        return ConverterUtil.toDTO(saved);
+        return toResponse(saved);
     }
 
     public Page<ProductResponseDTO> findAll(
@@ -108,7 +112,7 @@ public class ProductService {
                 .and(ProductSpecification.categoryEquals(category));
 
         return this.repository.findAll(spec, pageable)
-                .map(ConverterUtil::toDTO);
+                .map(this::toResponse);
     }
 
     public ProductResponseDTO findById(final UUID id) {
@@ -124,7 +128,7 @@ public class ProductService {
             }
         }
 
-        return ConverterUtil.toDTO(product);
+        return toResponse(product);
     }
 
     public ProductResponseDTO update(final UUID id, final ProductUpdateDTO dto) {
@@ -138,7 +142,7 @@ public class ProductService {
         existing.setCategory(dto.category());
 
         final Product updated = this.repository.save(existing);
-        return ConverterUtil.toDTO(updated);
+        return toResponse(updated);
     }
 
     public ProductResponseDTO updatePartial(final UUID id, final ProductPatchDTO dto) {
@@ -163,7 +167,7 @@ public class ProductService {
 
         final Product updated = this.repository.save(existing);
 
-        return ConverterUtil.toDTO(updated);
+        return toResponse(updated);
     }
 
     public void delete(final UUID id) {
@@ -179,7 +183,7 @@ public class ProductService {
         final List<ProductResponseDTO> dtoList = new ArrayList<>();
 
         for (final Product product : productPage.getContent()) {
-            dtoList.add(ConverterUtil.toDTO(product));
+            dtoList.add(toResponse(product));
         }
 
         return new PageImpl<>(
@@ -192,31 +196,38 @@ public class ProductService {
         final StringBuilder sb = new StringBuilder(255);
 
         sb.append(product.getName())
-            .append(" ")
-            .append(product.getDescription())
-            .append(" ");
-        
+                .append(" ")
+                .append(product.getDescription())
+                .append(" ");
+
         // producto não é criado com tags ainda :)
 
         // boolean firstTag = true;
 
         // for (final Tag tag : product.getTags()) {
-        //     if (firstTag) {
-        //         firstTag = false;
-        //     } else {
-        //         sb.append(",");
-        //     }
+        // if (firstTag) {
+        // firstTag = false;
+        // } else {
+        // sb.append(",");
+        // }
 
-        //     sb.append(tag.name().toLowerCase());
+        // sb.append(tag.name().toLowerCase());
         // }
 
         return sb.toString();
     }
-    
+
     private float[] generateEmbeddings(final String text) {
         final CohereApiCall embeddingApi = new CohereApiCall();
         embeddingApi.setApiKey(apiKey);
-        
+
         return embeddingApi.generateEmbeddings(Arrays.asList(text)).getFirst();
+    }
+
+    private ProductResponseDTO toResponse(Product product) {
+        Double average = ratingService.getAverageRating(product.getId());
+        Long count = ratingService.getRatingCount(product.getId());
+
+        return ConverterUtil.toDTO(product, average, count);
     }
 }
