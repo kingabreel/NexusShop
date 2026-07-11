@@ -13,9 +13,9 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import com.nexus.shop.model.AbstractEntity;
-import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.enums.Tag;
+import com.nexus.shop.model.store.entity.Store;
 
 @Entity
 @Table(name = "product")
@@ -45,14 +45,14 @@ public class Product extends AbstractEntity {
 
     private boolean highlight = false;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "created_by")
-    private User createdBy;
-
     @JdbcTypeCode(SqlTypes.VECTOR)
     @Array(length = 1536)
     @Column(name = "embedding")
     private float[] embedding;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id")
+    private Store store;
 
     public Product(
             final String name,

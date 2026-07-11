@@ -119,7 +119,7 @@ CREATE TABLE notification (
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE rating (
+CREATE TABLE ratings (
     id uuid PRIMARY KEY,
     created_at timestamp(6),
     updated_at timestamp(6),
@@ -181,8 +181,8 @@ CREATE INDEX idx_cart_user ON cart(user_id);
 CREATE INDEX idx_cart_item_cart ON cart_item(cart_id);
 CREATE INDEX idx_cart_item_product ON cart_item(product_id);
 
-CREATE INDEX idx_rating_product ON rating(product_id);
-CREATE INDEX idx_rating_user ON rating(user_id);
+CREATE INDEX idx_rating_product ON ratings(product_id);
+CREATE INDEX idx_rating_user ON ratings(user_id);
 
 CREATE INDEX idx_notification_user ON notification(user_id);
 CREATE INDEX idx_user_history_user ON user_history(user_id);
