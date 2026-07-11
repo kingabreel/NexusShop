@@ -20,12 +20,15 @@ import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.api.analytics.service.ProductAnalyticService;
 import com.nexus.shop.api.analytics.service.UserHistoryService;
 import com.nexus.shop.infra.external.CohereApiCall;
+import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.persistence.repository.ProductRepository;
+import com.nexus.shop.persistence.repository.UserRepository;
 import com.nexus.shop.persistence.specification.ProductSpecification;
 import com.nexus.shop.utils.converters.ConverterUtil;
+import com.nexus.shop.utils.helpers.UserContextHelper;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -36,21 +39,33 @@ public class ProductService {
     private final ProductRepository repository;
     private final ProductAnalyticService productAnalyticService;
     private final UserHistoryService userHistoryService;
-
+    private final UserRepository userRepository;
+    
     @Autowired
     public ProductService(
             final ProductRepository repository,
             final ProductAnalyticService productAnalyticService,
-            final UserHistoryService userHistoryService) {
+            final UserHistoryService userHistoryService,
+            final UserRepository userRepository) {
         this.repository = repository;
         this.productAnalyticService = productAnalyticService;
         this.userHistoryService = userHistoryService;
+        this.userRepository = userRepository;
     }
 
     @Value("${cohere.api.key}")
     private String apiKey;
 
     public ProductResponseDTO create(final ProductCreateDTO dto) {
+        final String email = UserContextHelper.getCurrentUserEmail();
+        
+        final User user = this.userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        
+        if (user.getStore() == null) {
+            throw new RuntimeException("User does not have a store associated.");
+        }
+
         final Product product = new Product(
                 dto.name(),
                 dto.description(),
@@ -60,8 +75,9 @@ public class ProductService {
                 new ArrayList<>(),
                 false);
 
-        final String genEmbeddingTxt = this.generateTextEmbedding(product);
+        product.setStore(user.getStore());
 
+        final String genEmbeddingTxt = this.generateTextEmbedding(product);
 
         try {
             final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
@@ -71,7 +87,6 @@ public class ProductService {
         } catch (final Exception e) {
             ProductService.log.error("Error while calling API: "  + e.getMessage());
         }
-
 
         Product saved = this.repository.save(product);
 
