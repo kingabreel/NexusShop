@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/ratings/**").authenticated()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/chatbot/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
 
