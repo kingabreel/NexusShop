@@ -37,7 +37,7 @@ public class ChatbotController {
     public ApiResponse<Object> getInformation(@RequestBody final ChatbotRequestDto requestDto) {
         final ApiResponse<Object> response = new ApiResponse<>();
 
-        response.setData(this.chatbotService.processRequest(requestDto));
+        response.setData(this.chatbotService.process(requestDto));
 
         return response;
     }

@@ -6,11 +6,10 @@ import java.util.List;
 import com.nexus.shop.model.chatbot.entity.ChatbotMenuItem;
 import com.nexus.shop.model.chatbot.enums.ChatbotOptions;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ChatbotMenuFactory {
+
+        private ChatbotMenuFactory() {
+        }
 
         public static List<ChatbotMenuItem> build() {
                 return Arrays.stream(ChatbotOptions.values())
