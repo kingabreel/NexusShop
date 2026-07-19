@@ -54,6 +54,8 @@ public class Product extends AbstractEntity {
     @Column(name = "embedding")
     private float[] embedding;
 
+    private Integer soldCount = 0;
+
     public Product(
             final String name,
             final String description,
