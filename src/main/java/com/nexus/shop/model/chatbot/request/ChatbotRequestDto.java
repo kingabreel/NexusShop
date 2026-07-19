@@ -1,5 +1,8 @@
 package com.nexus.shop.model.chatbot.request;
 
+import com.nexus.shop.model.chatbot.enums.ChatbotOptions;
+import com.nexus.shop.model.chatbot.enums.ChatbotSubOptions;
+
 public record ChatbotRequestDto(
-    String messageId, String messageKey, String messageText, String userId) {
+    ChatbotOptions option, ChatbotSubOptions subOption, String messageText, String userId) {
 }
