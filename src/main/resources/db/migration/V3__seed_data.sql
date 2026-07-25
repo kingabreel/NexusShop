@@ -15,7 +15,7 @@ VALUES (
     true,
     'admin',
     'admin@nexus.com',
-    '$2a$10$defaultencodedpasswordreplace',
+    '$2b$10$YxW6od6e9jLsWknm6pvX5OpF1wIL/fNOlLg2DfNfQ7Ny.Ytt3Ps2q',
     NULL
 );
 

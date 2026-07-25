@@ -3,7 +3,6 @@ package com.nexus.shop.api.rating.service;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -59,7 +58,7 @@ public class RatingService {
     public RatingResponseDTO create(RatingCreateDTO dto) {
         User user = authenticatedUserHelper.getAuthenticatedUser();
 
-        boolean alreadyRated = ratingRepository.existsByProductIdAndUserId(dto.productId(), user.getId());
+        boolean alreadyRated = ratingRepository.existsByProduct_IdAndUser_Id(dto.productId(), user.getId());
 
         if (alreadyRated) {
             throw new IllegalArgumentException("User already rated this product.");
@@ -88,11 +87,7 @@ public class RatingService {
     }
 
     public List<RatingResponseDTO> findByProduct(final UUID productId) {
-
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new RuntimeException("Product not found."));
-
-        List<Rating> ratings = ratingRepository.findByProduct(product);
+        List<Rating> ratings = ratingRepository.findByProduct_Id(productId);
 
         return ratings.stream()
                 .map(ConverterUtil::toDTO)
@@ -120,7 +115,7 @@ public class RatingService {
         }
 
         if (!StringUtils.isBlank(dto.imageBase64()) && isValidBase64Image(dto.imageBase64())) {
-            String imageUrl = saveImage(null, dto.imageBase64()); 
+            String imageUrl = saveImage(null, dto.imageBase64());
             rating.setImageUrl(imageUrl);
         }
 
@@ -194,5 +189,15 @@ public class RatingService {
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public Double getAverageRating(UUID productId) {
+        Double average = ratingRepository.findAverageRatingByProductId(productId);
+
+        return average == null ? 0.0 : average;
+    }
+
+    public Long getRatingCount(UUID productId) {
+        return ratingRepository.countByProduct_Id(productId);
     }
 }
