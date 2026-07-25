@@ -87,14 +87,14 @@ public class ChatbotService {
                 .toList();
     }
 
-    private List<ChatbotProductResponseDTO> searchByPrice(String text) {
+    private List<ChatbotProductResponseDTO> searchByPrice(final String text) {
 
         try {
 
-            String[] values = text.split("-");
+            final String[] values = text.split("-");
 
-            BigDecimal min = new BigDecimal(values[0].trim());
-            BigDecimal max = new BigDecimal(values[1].trim());
+            final BigDecimal min = new BigDecimal(values[0].trim());
+            final BigDecimal max = new BigDecimal(values[1].trim());
 
             return productRepository.findByPriceBetween(min, max)
                     .stream()

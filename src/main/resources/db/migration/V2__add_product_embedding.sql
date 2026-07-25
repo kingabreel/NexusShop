@@ -36,7 +36,7 @@ CREATE TABLE product (
 
     created_by uuid,
 
-    embedding vector(1536),
+    embedding vector(384),
 
     CONSTRAINT fk_product_user
         FOREIGN KEY (created_by) REFERENCES users(id)
