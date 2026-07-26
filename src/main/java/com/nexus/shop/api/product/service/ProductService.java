@@ -2,27 +2,25 @@ package com.nexus.shop.api.product.service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 
-import com.nexus.shop.model.product.entity.Product;
-import com.nexus.shop.model.product.enums.Category;
-import com.nexus.shop.model.product.dto.ProductUpdateDTO;
 import com.nexus.shop.api.analytics.service.ProductAnalyticService;
 import com.nexus.shop.api.analytics.service.UserHistoryService;
+import com.nexus.shop.api.embeddings.OnnxEmbeddingService;
 import com.nexus.shop.api.rating.service.RatingService;
-import com.nexus.shop.infra.external.CohereApiCall;
 import com.nexus.shop.model.auth.entity.User;
 import com.nexus.shop.model.product.dto.ProductPatchDTO;
+import com.nexus.shop.model.product.dto.ProductUpdateDTO;
+import com.nexus.shop.model.product.entity.Product;
+import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.product.request.ProductCreateDTO;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.persistence.repository.ProductRepository;
@@ -42,6 +40,7 @@ public class ProductService {
     private final UserHistoryService userHistoryService;
     private final RatingService ratingService;
     private final UserRepository userRepository;
+    private final OnnxEmbeddingService onnxEmbeddingService;
     
     @Autowired
     public ProductService(
@@ -49,16 +48,15 @@ public class ProductService {
             final ProductAnalyticService productAnalyticService,
             final UserHistoryService userHistoryService,
             final RatingService ratingService,
-            final UserRepository userRepository) {
+            final UserRepository userRepository,
+            final OnnxEmbeddingService onnxEmbeddingService) {
         this.repository = repository;
         this.productAnalyticService = productAnalyticService;
         this.userHistoryService = userHistoryService;
         this.ratingService = ratingService;
         this.userRepository = userRepository;
+        this.onnxEmbeddingService = onnxEmbeddingService;
     }
-
-    @Value("${cohere.api.key}")
-    private String apiKey;
 
     public ProductResponseDTO create(final ProductCreateDTO dto) {
         final String email = UserContextHelper.getCurrentUserEmail();
@@ -87,6 +85,7 @@ public class ProductService {
             final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
             if (embedding != null) {
                 product.setEmbedding(embedding);
+                ProductService.log.info("Embedding generated successfully for product: " + product.getName());
             }
         } catch (final Exception e) {
             ProductService.log.error("Error while calling API: " + e.getMessage());
@@ -192,36 +191,19 @@ public class ProductService {
                 productPage.getTotalElements());
     }
 
-    private String generateTextEmbedding(final Product product) {
+    public String generateTextEmbedding(final Product product) {
         final StringBuilder sb = new StringBuilder(255);
 
         sb.append(product.getName())
                 .append(" ")
                 .append(product.getDescription())
                 .append(" ");
-
-        // producto não é criado com tags ainda :)
-
-        // boolean firstTag = true;
-
-        // for (final Tag tag : product.getTags()) {
-        // if (firstTag) {
-        // firstTag = false;
-        // } else {
-        // sb.append(",");
-        // }
-
-        // sb.append(tag.name().toLowerCase());
-        // }
-
+                
         return sb.toString();
     }
 
     private float[] generateEmbeddings(final String text) {
-        final CohereApiCall embeddingApi = new CohereApiCall();
-        embeddingApi.setApiKey(apiKey);
-
-        return embeddingApi.generateEmbeddings(Arrays.asList(text)).getFirst();
+        return this.onnxEmbeddingService.generate(text).getVector();
     }
 
     private ProductResponseDTO toResponse(Product product) {
@@ -229,5 +211,24 @@ public class ProductService {
         Long count = ratingService.getRatingCount(product.getId());
 
         return ConverterUtil.toDTO(product, average, count);
+    }
+
+    public void generateEmbeddingForProductId(final UUID id) {
+        final Product product = this.repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        final String genEmbeddingTxt = this.generateTextEmbedding(product);
+
+        try {
+            final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
+            if (embedding != null) {
+                product.setEmbedding(embedding);
+                ProductService.log.info("Embedding generated successfully for product: " + product.getName());
+            }
+        } catch (final Exception e) {
+            ProductService.log.error("Error while calling API: " + e.getMessage());
+        }
+
+        this.repository.save(product);
     }
 }

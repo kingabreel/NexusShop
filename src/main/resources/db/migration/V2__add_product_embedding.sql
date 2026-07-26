@@ -36,7 +36,7 @@ CREATE TABLE product (
 
     created_by uuid,
 
-    embedding vector(1536),
+    embedding vector(384),
 
     CONSTRAINT fk_product_user
         FOREIGN KEY (created_by) REFERENCES users(id)
@@ -168,6 +168,13 @@ CREATE TABLE user_history (
 
     CONSTRAINT fk_user_history_product
         FOREIGN KEY (product_id) REFERENCES product(id)
+);
+
+CREATE TABLE refresh_tokens (
+    token text PRIMARY KEY,
+    username varchar(255) NOT NULL,
+    expires_at timestamp(6) NOT NULL,
+    revoked boolean NOT NULL DEFAULT false
 );
 
 CREATE INDEX product_embedding_idx

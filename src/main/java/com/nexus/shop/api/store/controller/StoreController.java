@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,33 +17,36 @@ import com.nexus.shop.model.ApiResponse;
 import com.nexus.shop.model.store.dto.StoreDto;
 import com.nexus.shop.model.store.request.StoreCreateDTO;
 
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api/store")
 @RestController
 public class StoreController {
-    
+
     private final StoreService service;
-    
+
     @PostMapping
     public ResponseEntity<ApiResponse<StoreDto>> create(@RequestBody @Valid final StoreCreateDTO dto) {
 
-        try {
+        try {                    
             final StoreDto response = service.create(dto);
             return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(new ApiResponse<>(response, "Successfully created rating"));
+                    .body(new ApiResponse<>(response, "Successfully created store"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(null, e.getMessage()));
 
         } catch (Exception e) {
+            StoreController.log.error("Error while creating store: " + e.getMessage());
+
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ApiResponse<>(null, "Internal error while creating rating"));
+                    .body(new ApiResponse<>(null, "Internal error while creating store"));
         }
     }
 
@@ -64,7 +68,6 @@ public class StoreController {
                     .body(new ApiResponse<>(null, "Internal error while deleting store"));
         }
     }
-
 
     @GetMapping("/find/{id}")
     public ResponseEntity<ApiResponse<StoreDto>> findById(@PathVariable final UUID id) {
@@ -103,26 +106,26 @@ public class StoreController {
         }
     }
 
-
     // TODO: Ainda em planejamento
 
-    // @GetMapping("/metrics/{id}") 
-    // public ResponseEntity<ApiResponse<Object>> getMetrics(@PathVariable final String id) {
+    // @GetMapping("/metrics/{id}")
+    // public ResponseEntity<ApiResponse<Object>> getMetrics(@PathVariable final
+    // String id) {
 
-    //     try {
+    // try {
 
-    //         return ResponseEntity.status(HttpStatus.OK)
-    //                 .body(new ApiResponse<>(response, "Successfully created rating"));
-    //     } catch (IllegalArgumentException e) {
-    //         return ResponseEntity
-    //                 .status(HttpStatus.BAD_REQUEST)
-    //                 .body(new ApiResponse<>(null, e.getMessage()));
+    // return ResponseEntity.status(HttpStatus.OK)
+    // .body(new ApiResponse<>(response, "Successfully created rating"));
+    // } catch (IllegalArgumentException e) {
+    // return ResponseEntity
+    // .status(HttpStatus.BAD_REQUEST)
+    // .body(new ApiResponse<>(null, e.getMessage()));
 
-    //     } catch (Exception e) {
-    //         return ResponseEntity
-    //                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-    //                 .body(new ApiResponse<>(null, "Internal error while creating rating"));
-    //     }
+    // } catch (Exception e) {
+    // return ResponseEntity
+    // .status(HttpStatus.INTERNAL_SERVER_ERROR)
+    // .body(new ApiResponse<>(null, "Internal error while creating rating"));
+    // }
     // }
 
 }

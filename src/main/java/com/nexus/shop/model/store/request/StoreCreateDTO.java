@@ -8,5 +8,7 @@ public record StoreCreateDTO (
     String phone,
     List<String> tags
 ) {
-
+    public StoreCreateDTO {
+        tags = tags == null ? List.of() : List.copyOf(tags);
+    }
 }
