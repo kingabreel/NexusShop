@@ -46,7 +46,7 @@ public class Product extends AbstractEntity {
     private boolean highlight = false;
 
     @JdbcTypeCode(SqlTypes.VECTOR)
-    @Array(length = 1536)
+    @Array(length = 384)
     @Column(name = "embedding")
     private float[] embedding;
 
