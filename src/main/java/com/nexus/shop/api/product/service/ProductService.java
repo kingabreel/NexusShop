@@ -191,7 +191,7 @@ public class ProductService {
                 productPage.getTotalElements());
     }
 
-    private String generateTextEmbedding(final Product product) {
+    public String generateTextEmbedding(final Product product) {
         final StringBuilder sb = new StringBuilder(255);
 
         sb.append(product.getName())
@@ -211,5 +211,24 @@ public class ProductService {
         Long count = ratingService.getRatingCount(product.getId());
 
         return ConverterUtil.toDTO(product, average, count);
+    }
+
+    public void generateEmbeddingForProductId(final UUID id) {
+        final Product product = this.repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+        final String genEmbeddingTxt = this.generateTextEmbedding(product);
+
+        try {
+            final float[] embedding = this.generateEmbeddings(genEmbeddingTxt);
+            if (embedding != null) {
+                product.setEmbedding(embedding);
+                ProductService.log.info("Embedding generated successfully for product: " + product.getName());
+            }
+        } catch (final Exception e) {
+            ProductService.log.error("Error while calling API: " + e.getMessage());
+        }
+
+        this.repository.save(product);
     }
 }
