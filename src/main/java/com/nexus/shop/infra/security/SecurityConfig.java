@@ -8,6 +8,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -31,8 +32,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import com.nexus.shop.api.auth.service.CustomUserDetailsService;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.core.annotation.Order;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -69,6 +68,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers("/api/ratings/**").authenticated()
                         .requestMatchers("/ws/**").permitAll()
+                        .requestMatchers("/api/store/**").authenticated()
                         .requestMatchers("/api/chatbot/**").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));

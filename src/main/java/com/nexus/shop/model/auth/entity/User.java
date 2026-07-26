@@ -1,18 +1,15 @@
 package com.nexus.shop.model.auth.entity;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nexus.shop.model.AbstractEntity;
-import com.nexus.shop.model.product.entity.Product;
+import com.nexus.shop.model.store.entity.Store;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -20,7 +17,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -43,12 +40,11 @@ public class User extends AbstractEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles = new HashSet<>();
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "createdBy")
-    private List<Product> createdProducts = new ArrayList<>();
-
     private AuthProvider provider;
 
+    @OneToOne(mappedBy = "owner", fetch = FetchType.LAZY)
+    private Store store;
+    
     public User() {
     }
 

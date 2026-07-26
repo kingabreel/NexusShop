@@ -119,7 +119,7 @@ CREATE TABLE notification (
         FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
-CREATE TABLE rating (
+CREATE TABLE ratings (
     id uuid PRIMARY KEY,
     created_at timestamp(6),
     updated_at timestamp(6),
@@ -170,6 +170,13 @@ CREATE TABLE user_history (
         FOREIGN KEY (product_id) REFERENCES product(id)
 );
 
+CREATE TABLE refresh_tokens (
+    token text PRIMARY KEY,
+    username varchar(255) NOT NULL,
+    expires_at timestamp(6) NOT NULL,
+    revoked boolean NOT NULL DEFAULT false
+);
+
 CREATE INDEX product_embedding_idx
 ON product
 USING hnsw (embedding vector_cosine_ops);
@@ -181,8 +188,8 @@ CREATE INDEX idx_cart_user ON cart(user_id);
 CREATE INDEX idx_cart_item_cart ON cart_item(cart_id);
 CREATE INDEX idx_cart_item_product ON cart_item(product_id);
 
-CREATE INDEX idx_rating_product ON rating(product_id);
-CREATE INDEX idx_rating_user ON rating(user_id);
+CREATE INDEX idx_rating_product ON ratings(product_id);
+CREATE INDEX idx_rating_user ON ratings(user_id);
 
 CREATE INDEX idx_notification_user ON notification(user_id);
 CREATE INDEX idx_user_history_user ON user_history(user_id);

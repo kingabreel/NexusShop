@@ -3,6 +3,8 @@ package com.nexus.shop.utils.converters;
 import com.nexus.shop.model.product.response.ProductResponseDTO;
 import com.nexus.shop.model.rating.entity.Rating;
 import com.nexus.shop.model.rating.response.RatingResponseDTO;
+import com.nexus.shop.model.store.dto.StoreDto;
+import com.nexus.shop.model.store.entity.Store;
 
 import java.util.List;
 
@@ -18,7 +20,11 @@ public final class ConverterUtil {
         throw new UnsupportedOperationException("Utility class");
     }
 
-    public static ProductResponseDTO toDTO(Product product) {
+    public static ProductResponseDTO toDTO(
+            Product product,
+            Double averageRating,
+            Long ratingCount) {
+
         return new ProductResponseDTO(
                 product.getId(),
                 product.getName(),
@@ -26,7 +32,9 @@ public final class ConverterUtil {
                 product.getPrice(),
                 product.getStock(),
                 product.getCategory(),
-                product.isHighlight());
+                product.isHighlight(),
+                averageRating,
+                ratingCount);
     }
 
     public static CartItemResponseDTO toDTO(CartItem item) {
@@ -55,13 +63,23 @@ public final class ConverterUtil {
     public static RatingResponseDTO toDTO(Rating rating) {
         String name = rating.isAnonymous() ? null : rating.getUser().getUsername();
         return new RatingResponseDTO(
-            rating.getId(),
-            rating.getRating(),
-            rating.getComment(),
-            rating.getProduct().getId(),
-            name,
-            rating.isAnonymous(),
-            rating.getImageUrl()
+                rating.getId(),
+                rating.getRating(),
+                rating.getComment(),
+                rating.getProduct().getId(),
+                name,
+                rating.isAnonymous(),
+                rating.getImageUrl());
+    }
+
+    public static StoreDto toDTO(final Store store) {
+        return new StoreDto(
+            store.getId(),
+            store.getName(),
+            store.getEmail(),
+            store.getPhone(),
+            store.getOwner().getUsername(),
+            store.getCreatedAt().toString()
         );
     }
 }
