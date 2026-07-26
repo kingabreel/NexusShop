@@ -9,6 +9,8 @@ import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -29,9 +31,12 @@ public class Store extends AbstractEntity {
     private String name;
     private String email;
     private String phone;
-    @ElementCollection
+    
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(name = "store_tags", joinColumns = @JoinColumn(name = "store_id"))
+    @Column(name = "tag")
     @Enumerated(EnumType.STRING)
-    private List<Category> tags;
+    private List<Category> tags = new ArrayList<>();
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products = new ArrayList<>();
