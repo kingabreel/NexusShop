@@ -1,16 +1,24 @@
-create table store (
-    id uuid primary key,
-    name varchar(255) not null,
-    email varchar(255) not null unique,
-    phone varchar(20) not null,
-    active boolean,
-    category varchar(255) NOT NULL,
-    created_at timestamp default current_timestamp,
-    updated_at timestamp default current_timestamp,
-    owner uuid not null,
+CREATE TABLE store (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    phone VARCHAR(20) NOT NULL,
+    active BOOLEAN,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    owner_id UUID NOT NULL UNIQUE,
 
     CONSTRAINT fk_store_user
-        FOREIGN KEY (owner) REFERENCES users(id)
+        FOREIGN KEY (owner_id) REFERENCES users(id)
+);
+
+CREATE TABLE store_tags (
+    store_id UUID NOT NULL,
+    tag VARCHAR(255) NOT NULL,
+
+    CONSTRAINT fk_store_tags_store
+        FOREIGN KEY (store_id) REFERENCES store(id)
+        ON DELETE CASCADE
 );
 
 CREATE TABLE store_products (

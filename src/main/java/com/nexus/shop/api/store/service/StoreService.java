@@ -32,13 +32,16 @@ public class StoreService {
         store.setPhone(dto.phone());
 
         store.setOwner(userRepository.findByEmail(UserContextHelper.getCurrentUserEmail()).get());
-        store.setTags(dto.tags().stream().map(tag -> {
-            try {
-                return Category.valueOf(tag.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException("Invalid category: " + tag);
-            }
-        }).toList());
+
+        if (dto.tags() != null) {
+            store.setTags(dto.tags().stream().map(tag -> {
+                try {
+                    return Category.valueOf(tag.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Invalid category: " + tag);
+                }
+            }).toList());
+        }
 
         return ConverterUtil.toDTO(this.storeRepository.save(store));
     }
