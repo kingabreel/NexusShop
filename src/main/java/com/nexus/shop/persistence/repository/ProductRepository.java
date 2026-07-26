@@ -14,56 +14,78 @@ import org.springframework.data.repository.query.Param;
 
 import com.nexus.shop.model.product.entity.Product;
 import com.nexus.shop.model.product.enums.Category;
+import com.nexus.shop.model.product.enums.Tag;
 
 public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpecificationExecutor<Product> {
 
-    Page<Product> findByHighlight(boolean highlight, Pageable pageable);
+        Page<Product> findByHighlight(boolean highlight, Pageable pageable);
 
-    @Query(value = """
-            SELECT *
-            FROM product
-            ORDER BY embedding <-> :embedding
-            LIMIT :limit
-            """, nativeQuery = true)
-    List<Product> searchSimilar(@Param("embedding") float[] embedding,
-            @Param("limit") int limit);
+        @Query(value = """
+                        SELECT *
+                        FROM product
+                        ORDER BY embedding <-> :embedding
+                        LIMIT :limit
+                        """, nativeQuery = true)
+        List<Product> searchSimilar(@Param("embedding") float[] embedding,
+                        @Param("limit") int limit);
 
-    List<Product> findByHighlightTrue();
+        List<Product> findByHighlightTrue();
 
-    List<Product> findByNameContainingIgnoreCase(String name);
+        List<Product> findByNameContainingIgnoreCase(String name);
 
-    Optional<Product> findByNameIgnoreCase(String name);
+        Optional<Product> findByNameIgnoreCase(String name);
 
-    List<Product> findByCategory(Category category);
+        List<Product> findByCategory(Category category);
 
-    List<Product> findByCategoryAndStockGreaterThan(Category category, Integer stock);
+        List<Product> findByCategoryAndStockGreaterThan(Category category, Integer stock);
 
-    List<Product> findByPriceBetween(BigDecimal min, BigDecimal max);
+        List<Product> findByPriceBetween(BigDecimal min, BigDecimal max);
 
-    List<Product> findByPriceLessThanEqual(BigDecimal max);
+        List<Product> findByPriceLessThanEqual(BigDecimal max);
 
-    List<Product> findByPriceGreaterThanEqual(BigDecimal min);
+        List<Product> findByPriceGreaterThanEqual(BigDecimal min);
 
-    List<Product> findByStockGreaterThan(Integer stock);
+        List<Product> findByStockGreaterThan(Integer stock);
 
-    List<Product> findByStockEquals(Integer stock);
+        List<Product> findByStockEquals(Integer stock);
 
-    List<Product> findTop10ByCategoryAndIdNot(Category category, UUID id);
+        List<Product> findTop10ByCategoryAndIdNot(Category category, UUID id);
 
-    List<Product> findTop10ByCategoryAndHighlightTrue(Category category);
+        List<Product> findTop10ByCategoryAndHighlightTrue(Category category);
 
-    List<Product> findTop10ByOrderByPriceAsc();
+        List<Product> findTop10ByOrderByPriceAsc();
 
-    List<Product> findTop10ByOrderByPriceDesc();
+        List<Product> findTop10ByOrderByPriceDesc();
 
-    List<Product> findTop10ByOrderByCreatedAtDesc();
+        List<Product> findTop10ByOrderByCreatedAtDesc();
 
-    @Query("""
-                select p
-                from Product p
-                join Rating r on r.product = p
-                group by p
-                order by avg(r.rating) desc
-            """)
-    List<Product> findTopRated(Pageable pageable);
+        @Query("""
+                            select p
+                            from Product p
+                            join Rating r on r.product = p
+                            group by p
+                            order by avg(r.rating) desc
+                        """)
+        List<Product> findTopRated(Pageable pageable);
+
+        @Query("""
+                        select distinct p
+                        from Product p
+                        where (
+                                p.category in :categories
+                                or exists (
+                                    select t
+                                    from Product p2 join p2.tags t
+                                    where p2 = p
+                                    and t in :tags
+                                )
+                              )
+                        and p.id not in :excludedIds
+                        order by p.soldCount desc
+                        """)
+        List<Product> findRecommendations(
+                        List<Category> categories,
+                        List<Tag> tags,
+                        List<UUID> excludedIds,
+                        Pageable pageable);
 }
