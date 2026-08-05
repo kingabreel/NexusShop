@@ -13,26 +13,20 @@ CREATE TABLE store (
 );
 
 CREATE TABLE store_tags (
-    store_id UUID NOT NULL,
-    tag VARCHAR(255) NOT NULL,
+    store_id uuid NOT NULL,
+    tag varchar(255) NOT NULL,
 
     CONSTRAINT fk_store_tags_store
-        FOREIGN KEY (store_id) REFERENCES store(id)
-        ON DELETE CASCADE
+        FOREIGN KEY (store_id) REFERENCES stores(id)
 );
 
-CREATE TABLE store_products (
-    store_id uuid NOT NULL,
-    product_id uuid NOT NULL,
+ALTER TABLE product 
+ADD COLUMN store_id uuid;
 
-    CONSTRAINT fk_store_products_store
-        FOREIGN KEY (store_id) REFERENCES store(id),
-    CONSTRAINT fk_store_products_product
-        FOREIGN KEY (product_id) REFERENCES product(id)
-);
+ALTER TABLE product 
+ADD CONSTRAINT fk_product_store 
+FOREIGN KEY (store_id) REFERENCES stores(id);
 
-alter table product drop column created_by;
-
-alter table product add column store_id uuid;
-
-alter table product add constraint fk_product_store foreign key (store_id) references store(id);
+CREATE INDEX idx_stores_owner ON stores(owner_id);
+CREATE INDEX idx_store_tags_store ON store_tags(store_id);
+CREATE INDEX idx_product_store ON product(store_id);
