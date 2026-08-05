@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.nexus.shop.api.embeddings.OnnxEmbeddingService;
 import com.nexus.shop.model.auth.entity.User;
+import com.nexus.shop.model.chatbot.enums.ChatbotOptions;
+import com.nexus.shop.model.chatbot.enums.ChatbotSubOptions;
 import com.nexus.shop.model.chatbot.request.ChatbotRequestDto;
 import com.nexus.shop.model.chatbot.response.ChatbotProductRecommendationResponseDTO;
 import com.nexus.shop.model.chatbot.response.ChatbotProductResponseDTO;
@@ -32,9 +34,9 @@ public class ChatbotService {
         private final AuthenticatedUserHelper authenticatedUserHelper;
         private final UserHistoryRepository userHistoryRepository;
         
-        public IChatbotResponseDTO process(ChatbotRequestDto request) {
+        public IChatbotResponseDTO process(final ChatbotRequestDto request) {
 
-                return switch (request.option()) {
+                return switch (ChatbotOptions.valueOf(request.option().id())) {
                         case FIND_PRODUCT -> new ChatbotProductRecommendationResponseDTO(
                                         this.subOptionsForFindProduct(request, request.messageText()));
                         case RECOMMENDATIONS -> new ChatbotProductRecommendationResponseDTO(
@@ -48,7 +50,7 @@ public class ChatbotService {
                         final String message) {
                 List<ChatbotProductResponseDTO> products = new ArrayList<>();
 
-                switch (request.subOption()) {
+                switch (ChatbotSubOptions.valueOf(request.subOption().id())) {
 
                         case SEARCH_BY_NAME ->
                                 products = this.searchByName(message);
@@ -72,7 +74,7 @@ public class ChatbotService {
                         final String message) {
                 List<ChatbotProductResponseDTO> products = new ArrayList<>();
 
-                switch (request.subOption()) {
+                switch (ChatbotSubOptions.valueOf(request.subOption().id())) {
 
                         case VIEW_RECOMMENDATIONS ->
                                 products = this.getProductsRecommendationForUser();
@@ -98,7 +100,7 @@ public class ChatbotService {
                 return products;
         }
 
-        private List<ChatbotProductResponseDTO> searchByName(String name) {
+        private List<ChatbotProductResponseDTO> searchByName(final String name) {
 
                 return productRepository.findByNameContainingIgnoreCase(name)
                                 .stream()
@@ -106,7 +108,7 @@ public class ChatbotService {
                                 .toList();
         }
 
-        private List<ChatbotProductResponseDTO> searchByCategory(String category) {
+        private List<ChatbotProductResponseDTO> searchByCategory(final String category) {
 
                 Category cat;
 
@@ -141,7 +143,7 @@ public class ChatbotService {
                 }
         }
 
-        private List<ChatbotProductResponseDTO> recommendUsingDescription(String description) {
+        private List<ChatbotProductResponseDTO> recommendUsingDescription(final String description) {
 
                 final float[] embeddings = this.embeddingService.generate(description).getVector();
 
@@ -179,9 +181,9 @@ public class ChatbotService {
 
         private List<ChatbotProductResponseDTO> getProductsRecommendationForUser() {
 
-                User user = authenticatedUserHelper.getAuthenticatedUser();
+                final User user = authenticatedUserHelper.getAuthenticatedUser();
 
-                List<Product> history = this.userHistoryRepository.findTop20HistoryProducts(
+                final List<Product> history = this.userHistoryRepository.findTop20HistoryProducts(
                                 user,
                                 PageRequest.of(0, 20));
 
@@ -192,17 +194,17 @@ public class ChatbotService {
                                         .toList();
                 }
 
-                List<Category> categories = history.stream()
+                final List<Category> categories = history.stream()
                                 .map(Product::getCategory)
                                 .distinct()
                                 .toList();
 
-                List<Tag> tags = history.stream()
+                final List<Tag> tags = history.stream()
                                 .flatMap(p -> p.getTags().stream())
                                 .distinct()
                                 .toList();
 
-                List<UUID> excludedIds = history.stream()
+                final List<UUID> excludedIds = history.stream()
                                 .map(Product::getId)
                                 .distinct()
                                 .toList();
