@@ -59,6 +59,8 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
         List<Product> findTop10ByOrderByCreatedAtDesc();
 
+        List<Product> findTop10ByOrderBySoldCountDesc();
+
         @Query("""
                             select p
                             from Product p
