@@ -38,6 +38,8 @@ CREATE TABLE product (
 
     embedding vector(384),
 
+    sold_count integer NOT NULL DEFAULT 0,
+    
     CONSTRAINT fk_product_user
         FOREIGN KEY (created_by) REFERENCES users(id)
 );
