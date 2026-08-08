@@ -10,6 +10,7 @@ public record ProductResponseDTO(
                 String name,
                 String description,
                 BigDecimal price,
+                BigDecimal discountedPrice,
                 Integer stock,
                 Category category,
                 Boolean isHighlighted,
