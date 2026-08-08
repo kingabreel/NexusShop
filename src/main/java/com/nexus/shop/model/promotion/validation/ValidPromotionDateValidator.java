@@ -23,7 +23,7 @@ public class ValidPromotionDateValidator implements ConstraintValidator<ValidPro
 
     private boolean isValidDate(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
         if (startDate == null || endDate == null) {
-            return true;
+            return false;
         }
         return startDate.isBefore(endDate);
     }

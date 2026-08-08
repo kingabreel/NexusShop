@@ -79,9 +79,9 @@ public class PromotionService {
     @Transactional(readOnly = true)
     public List<PromotionResponseDTO> getActive() {
         List<Promotion> promotions = promotionRepository.findAll();
-
         return promotions.stream()
-                .filter(p -> LocalDateTime.now().isAfter(p.getStartDate())
+                .filter(p -> p.isActive()
+                        && LocalDateTime.now().isAfter(p.getStartDate())
                         && LocalDateTime.now().isBefore(p.getEndDate()))
                 .map(p -> ConverterUtil.toDTO(p, toProductDTOs(p)))
                 .toList();
