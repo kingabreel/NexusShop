@@ -17,7 +17,7 @@ CREATE TABLE store_tags (
     tag varchar(255) NOT NULL,
 
     CONSTRAINT fk_store_tags_store
-        FOREIGN KEY (store_id) REFERENCES stores(id)
+        FOREIGN KEY (store_id) REFERENCES store(id)
 );
 
 ALTER TABLE product 
@@ -25,8 +25,8 @@ ADD COLUMN store_id uuid;
 
 ALTER TABLE product 
 ADD CONSTRAINT fk_product_store 
-FOREIGN KEY (store_id) REFERENCES stores(id);
+FOREIGN KEY (store_id) REFERENCES store(id);
 
-CREATE INDEX idx_stores_owner ON stores(owner_id);
+CREATE INDEX idx_stores_owner ON store(owner_id);
 CREATE INDEX idx_store_tags_store ON store_tags(store_id);
 CREATE INDEX idx_product_store ON product(store_id);

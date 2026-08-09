@@ -1,11 +1,5 @@
 package com.nexus.shop.utils.converters;
 
-import com.nexus.shop.model.product.response.ProductResponseDTO;
-import com.nexus.shop.model.rating.entity.Rating;
-import com.nexus.shop.model.rating.response.RatingResponseDTO;
-import com.nexus.shop.model.store.dto.StoreDto;
-import com.nexus.shop.model.store.entity.Store;
-
 import java.util.List;
 
 import com.nexus.shop.model.cart.entity.Cart;
@@ -13,6 +7,13 @@ import com.nexus.shop.model.cart.entity.CartItem;
 import com.nexus.shop.model.cart.response.CartItemResponseDTO;
 import com.nexus.shop.model.cart.response.CartResponseDTO;
 import com.nexus.shop.model.product.entity.Product;
+import com.nexus.shop.model.product.response.ProductResponseDTO;
+import com.nexus.shop.model.promotion.entity.Promotion;
+import com.nexus.shop.model.promotion.response.PromotionResponseDTO;
+import com.nexus.shop.model.rating.entity.Rating;
+import com.nexus.shop.model.rating.response.RatingResponseDTO;
+import com.nexus.shop.model.store.dto.StoreDto;
+import com.nexus.shop.model.store.entity.Store;
 
 public final class ConverterUtil {
 
@@ -30,6 +31,7 @@ public final class ConverterUtil {
                 product.getName(),
                 product.getDescription(),
                 product.getPrice(),
+                product.getDiscountedPrice(),
                 product.getStock(),
                 product.getCategory(),
                 product.isHighlight(),
@@ -81,5 +83,18 @@ public final class ConverterUtil {
             store.getOwner().getUsername(),
             store.getCreatedAt().toString()
         );
+    }
+
+    public static PromotionResponseDTO toDTO(
+        final Promotion promotion,
+        final List<ProductResponseDTO> products) {
+
+        return new PromotionResponseDTO(
+                promotion.getId(),
+                promotion.getName(),
+                promotion.getStartDate(),
+                promotion.getEndDate(),
+                promotion.getPercentage(),
+                products);
     }
 }

@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.nexus.shop.model.product.enums.Category;
 import com.nexus.shop.model.store.dto.StoreDto;
 import com.nexus.shop.model.store.entity.Store;
 import com.nexus.shop.model.store.request.StoreCreateDTO;
@@ -33,15 +32,7 @@ public class StoreService {
 
         store.setOwner(userRepository.findByEmail(UserContextHelper.getCurrentUserEmail()).get());
 
-        if (dto.tags() != null) {
-            store.setTags(dto.tags().stream().map(tag -> {
-                try {
-                    return Category.valueOf(tag.toUpperCase());
-                } catch (IllegalArgumentException e) {
-                    throw new IllegalArgumentException("Invalid category: " + tag);
-                }
-            }).toList());
-        }
+        store.setTags(dto.tags());
 
         return ConverterUtil.toDTO(this.storeRepository.save(store));
     }
