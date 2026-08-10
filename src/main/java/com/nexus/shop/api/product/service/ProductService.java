@@ -75,7 +75,7 @@ public class ProductService {
                 dto.stock(),
                 dto.category(),
                 new ArrayList<>(),
-                false);
+                dto.isHighlight());
 
         product.setStore(user.getStore());
 
@@ -139,6 +139,7 @@ public class ProductService {
         existing.setPrice(dto.price());
         existing.setStock(dto.stock());
         existing.setCategory(dto.category());
+        existing.setHighlight(dto.isHighlight());
 
         final Product updated = this.repository.save(existing);
         return toResponse(updated);
@@ -162,6 +163,10 @@ public class ProductService {
         }
         if (dto.category() != null) {
             existing.setCategory(dto.category());
+        }
+
+        if (dto.isHighlight() != null) {
+            existing.setHighlight(dto.isHighlight());
         }
 
         final Product updated = this.repository.save(existing);
