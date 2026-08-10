@@ -44,7 +44,10 @@ public class PromotionService {
         Promotion promotion = new Promotion();
 
         promotion.setName(dto.name());
-        promotion.setStartDate(dto.startDate());
+
+        if (dto.startDate() != null) {
+            promotion.setStartDate(dto.startDate());
+        }
         promotion.setEndDate(dto.endDate());
         promotion.setPercentage(dto.percentage());
         promotion.setStore(store);
@@ -82,7 +85,7 @@ public class PromotionService {
         return promotions.stream()
                 .filter(p -> p.isActive()
                         && LocalDateTime.now().isAfter(p.getStartDate())
-                        && LocalDateTime.now().isBefore(p.getEndDate()))
+                        && (p.getEndDate() == null || LocalDateTime.now().isBefore(p.getEndDate())))
                 .map(p -> ConverterUtil.toDTO(p, toProductDTOs(p)))
                 .toList();
     }
@@ -112,6 +115,10 @@ public class PromotionService {
 
         if (dto.percentage() != null) {
             promotion.setPercentage(dto.percentage());
+        }
+
+        if (promotion.getEndDate() != null && !promotion.getStartDate().isBefore(promotion.getEndDate())) {
+            throw new RuntimeException("startDate must be before endDate.");
         }
 
         final Promotion update = promotionRepository.save(promotion);

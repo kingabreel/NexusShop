@@ -10,5 +10,6 @@ public record ProductUpdateDTO(
                 String description,
                 @NotNull BigDecimal price,
                 @NotNull Integer stock,
-                @NotNull Category category) {
+                @NotNull Category category,
+                @NotNull Boolean isHighlight) {
 }
