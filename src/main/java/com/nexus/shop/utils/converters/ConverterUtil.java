@@ -36,7 +36,8 @@ public final class ConverterUtil {
                 product.getCategory(),
                 product.isHighlight(),
                 averageRating,
-                ratingCount);
+                ratingCount,
+                product.getImageUrl());
     }
 
     public static CartItemResponseDTO toDTO(CartItem item) {

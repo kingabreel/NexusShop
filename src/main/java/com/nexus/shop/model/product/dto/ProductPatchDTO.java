@@ -9,5 +9,6 @@ public record ProductPatchDTO(
         BigDecimal price,
         Integer stock,
         Category category,
-        Boolean isHighlight) {
+        Boolean isHighlight,
+        String imageBase64) {
 }

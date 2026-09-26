@@ -15,5 +15,6 @@ public record ProductResponseDTO(
                 Category category,
                 Boolean isHighlighted,
                 Double averageRating,
-                Long ratingCount) {
+                Long ratingCount,
+                String imageUrl) {
 }

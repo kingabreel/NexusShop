@@ -59,6 +59,9 @@ public class Product extends AbstractEntity {
 
     private boolean highlight = false;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @JdbcTypeCode(SqlTypes.VECTOR)
     @Array(length = 384)
     @Column(name = "embedding")
@@ -94,8 +97,8 @@ public class Product extends AbstractEntity {
 
         Double bestDiscount = this.promotions.stream()
                 .filter(p -> p.isActive()
-                && now.isAfter(p.getStartDate())
-                && (p.getEndDate() == null || now.isBefore(p.getEndDate())))
+                        && now.isAfter(p.getStartDate())
+                        && (p.getEndDate() == null || now.isBefore(p.getEndDate())))
                 .map(Promotion::getPercentage)
                 .max(Double::compareTo)
                 .orElse(0.0);

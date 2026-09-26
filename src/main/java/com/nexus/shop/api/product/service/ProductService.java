@@ -27,6 +27,7 @@ import com.nexus.shop.persistence.repository.ProductRepository;
 import com.nexus.shop.persistence.repository.UserRepository;
 import com.nexus.shop.persistence.specification.ProductSpecification;
 import com.nexus.shop.utils.converters.ConverterUtil;
+import com.nexus.shop.utils.helpers.ImageUploadHelper;
 import com.nexus.shop.utils.helpers.UserContextHelper;
 
 import lombok.extern.slf4j.Slf4j;
@@ -41,6 +42,7 @@ public class ProductService {
     private final RatingService ratingService;
     private final UserRepository userRepository;
     private final OnnxEmbeddingService onnxEmbeddingService;
+    private final ImageUploadHelper imageUploadHelper;
     
     @Autowired
     public ProductService(
@@ -49,13 +51,15 @@ public class ProductService {
             final UserHistoryService userHistoryService,
             final RatingService ratingService,
             final UserRepository userRepository,
-            final OnnxEmbeddingService onnxEmbeddingService) {
+            final OnnxEmbeddingService onnxEmbeddingService,
+            final ImageUploadHelper imageUploadHelper) {
         this.repository = repository;
         this.productAnalyticService = productAnalyticService;
         this.userHistoryService = userHistoryService;
         this.ratingService = ratingService;
         this.userRepository = userRepository;
         this.onnxEmbeddingService = onnxEmbeddingService;
+        this.imageUploadHelper = imageUploadHelper;
     }
 
     public ProductResponseDTO create(final ProductCreateDTO dto) {
@@ -78,6 +82,13 @@ public class ProductService {
                 dto.isHighlight());
 
         product.setStore(user.getStore());
+
+        if (dto.imageBase64() != null && !dto.imageBase64().isBlank()) {
+            if (!this.imageUploadHelper.isValidBase64Image(dto.imageBase64())) {
+                throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
+            }
+            product.setImageUrl(this.imageUploadHelper.saveImage(dto.imageBase64()));
+        }
 
         final String genEmbeddingTxt = this.generateTextEmbedding(product);
 
@@ -141,6 +152,13 @@ public class ProductService {
         existing.setCategory(dto.category());
         existing.setHighlight(dto.isHighlight());
 
+        if (dto.imageBase64() != null && !dto.imageBase64().isBlank()) {
+            if (!this.imageUploadHelper.isValidBase64Image(dto.imageBase64())) {
+                throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
+            }
+            existing.setImageUrl(this.imageUploadHelper.saveImage(dto.imageBase64()));
+        }
+
         final Product updated = this.repository.save(existing);
         return toResponse(updated);
     }
@@ -167,6 +185,12 @@ public class ProductService {
 
         if (dto.isHighlight() != null) {
             existing.setHighlight(dto.isHighlight());
+        }
+        if (dto.imageBase64() != null && !dto.imageBase64().isBlank()) {
+            if (!this.imageUploadHelper.isValidBase64Image(dto.imageBase64())) {
+                throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
+            }
+            existing.setImageUrl(this.imageUploadHelper.saveImage(dto.imageBase64()));
         }
 
         final Product updated = this.repository.save(existing);
