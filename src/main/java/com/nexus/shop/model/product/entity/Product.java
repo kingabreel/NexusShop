@@ -93,7 +93,9 @@ public class Product extends AbstractEntity {
         LocalDateTime now = LocalDateTime.now();
 
         Double bestDiscount = this.promotions.stream()
-                .filter(p -> now.isAfter(p.getStartDate()) && now.isBefore(p.getEndDate()))
+                .filter(p -> p.isActive()
+                && now.isAfter(p.getStartDate())
+                && (p.getEndDate() == null || now.isBefore(p.getEndDate())))
                 .map(Promotion::getPercentage)
                 .max(Double::compareTo)
                 .orElse(0.0);

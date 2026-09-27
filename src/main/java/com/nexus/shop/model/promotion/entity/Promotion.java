@@ -31,9 +31,8 @@ public class Promotion extends AbstractEntity {
     private String name;
 
     @Column(nullable = false)
-    private LocalDateTime startDate;
+    private LocalDateTime startDate = LocalDateTime.now();
 
-    @Column(nullable = false)
     private LocalDateTime endDate;
 
     @Column(nullable = false)

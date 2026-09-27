@@ -1,6 +1,7 @@
 package com.nexus.shop.model.promotion.validation;
 
-import com.nexus.shop.model.promotion.dto.PromotionPatchDTO;
+import java.time.LocalDateTime;
+
 import com.nexus.shop.model.promotion.request.PromotionRequestDTO;
 
 import jakarta.validation.ConstraintValidator;
@@ -14,17 +15,14 @@ public class ValidPromotionDateValidator implements ConstraintValidator<ValidPro
             return isValidDate(dto.startDate(), dto.endDate());
         }
 
-        if (value instanceof PromotionPatchDTO dto) {
-            return isValidDate(dto.startDate(), dto.endDate());
-        }
-
         return true;
     }
 
-    private boolean isValidDate(java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
-        if (startDate == null || endDate == null) {
+    private boolean isValidDate(LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate == null) {
             return false;
         }
-        return startDate.isBefore(endDate);
+
+        return endDate == null || startDate.isBefore(endDate);
     }
 }

@@ -12,5 +12,6 @@ public record ProductCreateDTO(
                 String description,
                 @NotNull @Positive BigDecimal price,
                 @NotNull Integer stock,
-                @NotNull Category category) {
+                @NotNull Category category,
+                @NotNull Boolean isHighlight) {
 }
