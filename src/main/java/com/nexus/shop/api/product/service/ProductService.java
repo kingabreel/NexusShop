@@ -83,12 +83,7 @@ public class ProductService {
 
         product.setStore(user.getStore());
 
-        if (dto.imageBase64() != null && !dto.imageBase64().isBlank()) {
-            if (!this.imageUploadHelper.isValidBase64Image(dto.imageBase64())) {
-                throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
-            }
-            product.setImageUrl(this.imageUploadHelper.saveImage(dto.imageBase64()));
-        }
+        this.setImageUrlIfPresent(product, dto.imageBase64());
 
         final String genEmbeddingTxt = this.generateTextEmbedding(product);
 
@@ -152,12 +147,7 @@ public class ProductService {
         existing.setCategory(dto.category());
         existing.setHighlight(dto.isHighlight());
 
-        if (dto.imageBase64() != null && !dto.imageBase64().isBlank()) {
-            if (!this.imageUploadHelper.isValidBase64Image(dto.imageBase64())) {
-                throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
-            }
-            existing.setImageUrl(this.imageUploadHelper.saveImage(dto.imageBase64()));
-        }
+        this.setImageUrlIfPresent(existing, dto.imageBase64());
 
         final Product updated = this.repository.save(existing);
         return toResponse(updated);
@@ -186,12 +176,8 @@ public class ProductService {
         if (dto.isHighlight() != null) {
             existing.setHighlight(dto.isHighlight());
         }
-        if (dto.imageBase64() != null && !dto.imageBase64().isBlank()) {
-            if (!this.imageUploadHelper.isValidBase64Image(dto.imageBase64())) {
-                throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
-            }
-            existing.setImageUrl(this.imageUploadHelper.saveImage(dto.imageBase64()));
-        }
+
+        this.setImageUrlIfPresent(existing, dto.imageBase64());
 
         final Product updated = this.repository.save(existing);
 
@@ -218,6 +204,18 @@ public class ProductService {
                 dtoList,
                 pageable,
                 productPage.getTotalElements());
+    }
+
+    private void setImageUrlIfPresent(final Product product, final String imageBase64) {
+        if (imageBase64 == null || imageBase64.isBlank()) {
+            return;
+        }
+
+        if (!this.imageUploadHelper.isValidBase64Image(imageBase64)) {
+            throw new IllegalArgumentException("Image should be a valid Base64 encoded JPG or PNG.");
+        }
+
+        product.setImageUrl(this.imageUploadHelper.saveImage(imageBase64));
     }
 
     public String generateTextEmbedding(final Product product) {
