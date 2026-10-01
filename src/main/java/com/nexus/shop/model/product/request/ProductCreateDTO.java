@@ -13,5 +13,6 @@ public record ProductCreateDTO(
                 @NotNull @Positive BigDecimal price,
                 @NotNull Integer stock,
                 @NotNull Category category,
-                @NotNull Boolean isHighlight) {
+                @NotNull Boolean isHighlight,
+                @NotNull String imageBase64) {
 }

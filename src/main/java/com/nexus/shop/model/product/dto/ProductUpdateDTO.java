@@ -11,5 +11,6 @@ public record ProductUpdateDTO(
                 @NotNull BigDecimal price,
                 @NotNull Integer stock,
                 @NotNull Category category,
-                @NotNull Boolean isHighlight) {
+                @NotNull Boolean isHighlight,
+                String imageBase64) {
 }
